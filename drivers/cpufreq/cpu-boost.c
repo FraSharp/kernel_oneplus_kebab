@@ -226,7 +226,6 @@ static void do_input_boost(struct kthread_work *work)
 	if (!input_boost_ms)
 		return;
 
-	cancel_delayed_work_sync(&input_boost_rem);
 	if (sched_boost_active) {
 		sched_set_boost(0);
 		sched_boost_active = false;
