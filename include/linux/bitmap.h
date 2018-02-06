@@ -67,6 +67,11 @@
  *  bitmap_from_arr32(dst, buf, nbits)          Copy nbits from u32[] buf to dst
  *  bitmap_to_arr32(buf, src, nbits)            Copy nbits from buf to u32[] dst
  *
+ * Note, bitmap_zero() and bitmap_fill() operate over the region of
+ * unsigned longs, that is, bits behind bitmap till the unsigned long
+ * boundary will be zeroed or filled as well. Consider to use
+ * bitmap_clear() or bitmap_set() to make explicit zeroing or filling
+ * respectively.
  */
 
 /**
