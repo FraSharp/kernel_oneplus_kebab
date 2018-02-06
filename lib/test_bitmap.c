@@ -292,17 +292,15 @@ static void __init test_bitmap_parselist(void)
 	}
 }
 
-#define EXP_BYTES	(sizeof(exp) * 8)
-
 static void __init test_bitmap_arr32(void)
 {
-	unsigned int nbits, next_bit;
+	unsigned int nbits, next_bit, len = sizeof(exp) * 8;
 	u32 arr[sizeof(exp) / 4];
-	DECLARE_BITMAP(bmap2, EXP_BYTES);
+	DECLARE_BITMAP(bmap2, len);
 
 	memset(arr, 0xa5, sizeof(arr));
 
-	for (nbits = 0; nbits < EXP_BYTES; ++nbits) {
+	for (nbits = 0; nbits < len; ++nbits) {
 		bitmap_to_arr32(arr, exp, nbits);
 		bitmap_from_arr32(bmap2, arr, nbits);
 		expect_eq_bitmap(bmap2, exp, nbits);
@@ -314,7 +312,7 @@ static void __init test_bitmap_arr32(void)
 				" tail is not safely cleared: %d\n",
 				nbits, next_bit);
 
-		if (nbits < EXP_BYTES - 32)
+		if (nbits < len - 32)
 			expect_eq_uint(arr[DIV_ROUND_UP(nbits, 32)],
 								0xa5a5a5a5);
 	}
@@ -359,9 +357,7 @@ static void noinline __init test_mem_optimisations(void)
 
 static int __init test_bitmap_init(void)
 {
-	test_zero_clear();
-	test_fill_set();
-	test_copy();
+	test_zero_fill_copy();
 	test_bitmap_arr32();
 	test_bitmap_parselist();
 	test_mem_optimisations();

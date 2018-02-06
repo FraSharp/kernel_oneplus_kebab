@@ -64,8 +64,6 @@
  *  bitmap_find_free_region(bitmap, bits, order)  Find and allocate bit region
  *  bitmap_release_region(bitmap, pos, order)   Free specified bit region
  *  bitmap_allocate_region(bitmap, pos, order)  Allocate specified bit region
- *  bitmap_from_u32array(dst, nbits, buf, nwords)  *dst = *buf (nwords 32b words)
- *  bitmap_to_u32array(buf, nwords, src, nbits) *buf = *dst (nwords 32b words)
  *  bitmap_from_arr32(dst, buf, nbits)          Copy nbits from u32[] buf to dst
  *  bitmap_to_arr32(buf, src, nbits)            Copy nbits from buf to u32[] dst
  *
