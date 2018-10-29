@@ -2025,7 +2025,7 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
 	struct blk_mq_tags *tags;
 	int node;
 
-	node = blk_mq_hw_queue_to_node(set->mq_map, hctx_idx);
+	node = blk_mq_hw_queue_to_node(&set->map[0], hctx_idx);
 	if (node == NUMA_NO_NODE)
 		node = set->numa_node;
 
@@ -2081,7 +2081,7 @@ int blk_mq_alloc_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
 	size_t rq_size, left;
 	int node;
 
-	node = blk_mq_hw_queue_to_node(set->mq_map, hctx_idx);
+	node = blk_mq_hw_queue_to_node(&set->map[0], hctx_idx);
 	if (node == NUMA_NO_NODE)
 		node = set->numa_node;
 
@@ -2365,7 +2365,7 @@ static void blk_mq_map_swqueue(struct request_queue *q)
 	 * If the cpu isn't present, the cpu is mapped to first hctx.
 	 */
 	for_each_possible_cpu(i) {
-		hctx_idx = set->mq_map[i];
+		hctx_idx = set->map[0].mq_map[i];
 		/* unmapped hw queue can be remapped after CPU topo changed */
 		if (!set->tags[hctx_idx] &&
 		    !__blk_mq_alloc_rq_map(set, hctx_idx)) {
@@ -2375,7 +2375,7 @@ static void blk_mq_map_swqueue(struct request_queue *q)
 			 * case, remap the current ctx to hctx[0] which
 			 * is guaranteed to always have tags allocated
 			 */
-			set->mq_map[i] = 0;
+			set->map[0].mq_map[i] = 0;
 		}
 
 		ctx = per_cpu_ptr(q->queue_ctx, i);
@@ -2561,7 +2561,7 @@ static void blk_mq_realloc_hw_ctxs(struct blk_mq_tag_set *set,
 	for (i = 0; i < set->nr_hw_queues; i++) {
 		int node;
 
-		node = blk_mq_hw_queue_to_node(set->mq_map, i);
+		node = blk_mq_hw_queue_to_node(&set->map[0], i);
 		/*
 		 * If the hw queue has been mapped to another numa node,
 		 * we need to realloc the hctx. If allocation fails, fallback
@@ -2789,18 +2789,18 @@ static int blk_mq_update_queue_map(struct blk_mq_tag_set *set)
 		 * for (queue = 0; queue < set->nr_hw_queues; queue++) {
 		 * 	mask = get_cpu_mask(queue)
 		 * 	for_each_cpu(cpu, mask)
-		 * 		set->mq_map[cpu] = queue;
+		 * 		set->map.mq_map[cpu] = queue;
 		 * }
 		 *
 		 * When we need to remap, the table has to be cleared for
 		 * killing stale mapping since one CPU may not be mapped
 		 * to any hw queue.
 		 */
-		blk_mq_clear_mq_map(set);
+		blk_mq_clear_mq_map(&set->map[0]);
 
 		return set->ops->map_queues(set);
 	} else
-		return blk_mq_map_queues(set);
+		return blk_mq_map_queues(&set->map[0]);
 }
 
 /*
@@ -2855,10 +2855,12 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
 		return -ENOMEM;
 
 	ret = -ENOMEM;
-	set->mq_map = kcalloc_node(nr_cpu_ids, sizeof(*set->mq_map),
-				   GFP_KERNEL, set->numa_node);
-	if (!set->mq_map)
+	set->map[0].mq_map = kcalloc_node(nr_cpu_ids,
+					  sizeof(*set->map[0].mq_map),
+					  GFP_KERNEL, set->numa_node);
+	if (!set->map[0].mq_map)
 		goto out_free_tags;
+	set->map[0].nr_queues = set->nr_hw_queues;
 
 	ret = blk_mq_update_queue_map(set);
 	if (ret)
@@ -2874,8 +2876,8 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
 	return 0;
 
 out_free_mq_map:
-	kfree(set->mq_map);
-	set->mq_map = NULL;
+	kfree(set->map[0].mq_map);
+	set->map[0].mq_map = NULL;
 out_free_tags:
 	kfree(set->tags);
 	set->tags = NULL;
@@ -2890,8 +2892,8 @@ void blk_mq_free_tag_set(struct blk_mq_tag_set *set)
 	for (i = 0; i < nr_cpu_ids; i++)
 		blk_mq_free_map_and_requests(set, i);
 
-	kfree(set->mq_map);
-	set->mq_map = NULL;
+	kfree(set->map[0].mq_map);
+	set->map[0].mq_map = NULL;
 
 	kfree(set->tags);
 	set->tags = NULL;
@@ -3042,7 +3044,19 @@ static void __blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set,
 	blk_mq_update_queue_map(set);
 	list_for_each_entry(q, &set->tag_list, tag_set_list) {
 		blk_mq_realloc_hw_ctxs(set, q);
-		blk_mq_queue_reinit(q);
+		if (q->nr_hw_queues != set->nr_hw_queues) {
+			pr_warn("Increasing nr_hw_queues to %d fails, fallback to %d\n",
+					nr_hw_queues, prev_nr_hw_queues);
+			set->nr_hw_queues = prev_nr_hw_queues;
+			blk_mq_map_queues(&set->map[0]);
+			goto fallback;
+		}
+		blk_mq_map_swqueue(q);
+	}
+
+	list_for_each_entry(q, &set->tag_list, tag_set_list) {
+		blk_mq_sysfs_register(q);
+		blk_mq_debugfs_register_hctxs(q);
 	}
 
 switch_back:
