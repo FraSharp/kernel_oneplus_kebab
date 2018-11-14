@@ -614,6 +614,12 @@ static bool scsi_end_request(struct request *req, blk_status_t error,
 	 */
 	scsi_mq_uninit_cmd(cmd);
 
+	/*
+	 * queue is still alive, so grab the ref for preventing it
+	 * from being cleaned up during running queue.
+	 */
+	percpu_ref_get(&q->q_usage_counter);
+
 	__blk_mq_end_request(req, error);
 
 	if (scsi_target(sdev)->single_lun ||
@@ -623,6 +629,8 @@ static bool scsi_end_request(struct request *req, blk_status_t error,
 		blk_mq_run_hw_queues(q, true);
 
 	put_device(&sdev->sdev_gendev);
+
+	percpu_ref_put(&q->q_usage_counter);
 	return false;
 }
 
