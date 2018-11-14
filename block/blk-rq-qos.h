@@ -25,7 +25,7 @@ struct rq_qos {
 };
 
 struct rq_qos_ops {
-	void (*throttle)(struct rq_qos *, struct bio **);
+	void (*throttle)(struct rq_qos *, struct bio *);
 	void (*track)(struct rq_qos *, struct request *, struct bio *);
 	void (*issue)(struct rq_qos *, struct request *);
 	void (*requeue)(struct rq_qos *, struct request *);
