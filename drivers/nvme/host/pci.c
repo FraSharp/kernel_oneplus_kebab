@@ -994,11 +994,28 @@ static int __nvme_poll(struct nvme_queue *nvmeq, unsigned int tag)
 	return found;
 }
 
-static int nvme_poll(struct blk_mq_hw_ctx *hctx, unsigned int tag)
+static int nvme_poll(struct blk_mq_hw_ctx *hctx)
 {
 	struct nvme_queue *nvmeq = hctx->driver_data;
 
-	return __nvme_poll(nvmeq, tag);
+	return __nvme_poll(nvmeq, -1);
+}
+
+static int nvme_poll_noirq(struct blk_mq_hw_ctx *hctx)
+{
+	struct nvme_queue *nvmeq = hctx->driver_data;
+	u16 start, end;
+	bool found;
+
+	if (!nvme_cqe_pending(nvmeq))
+		return 0;
+
+	spin_lock(&nvmeq->cq_lock);
+	found = nvme_process_cq(nvmeq, &start, &end, -1);
+	spin_unlock(&nvmeq->cq_lock);
+
+	nvme_complete_cqes(nvmeq, start, end);
+	return found;
 }
 
 static void nvme_pci_submit_async_event(struct nvme_ctrl *ctrl)
