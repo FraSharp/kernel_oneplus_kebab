@@ -91,6 +91,7 @@ struct nvme_dev {
 	struct dma_pool *prp_small_pool;
 	unsigned online_queues;
 	unsigned max_qid;
+	unsigned io_queues[HCTX_MAX_TYPES];
 	unsigned int num_vecs;
 	int q_depth;
 	u32 db_stride;
@@ -449,6 +450,34 @@ static int nvme_init_request(struct blk_mq_tag_set *set, struct request *req,
 static int nvme_pci_map_queues(struct blk_mq_tag_set *set)
 {
 	struct nvme_dev *dev = set->driver_data;
+	int i, qoff, offset;
+
+	offset = queue_irq_offset(dev);
+	for (i = 0, qoff = 0; i < set->nr_maps; i++) {
+		struct blk_mq_queue_map *map = &set->map[i];
+
+		map->nr_queues = dev->io_queues[i];
+		if (!map->nr_queues) {
+			BUG_ON(i == HCTX_TYPE_DEFAULT);
+
+			/* shared set, resuse read set parameters */
+			map->nr_queues = dev->io_queues[HCTX_TYPE_DEFAULT];
+			qoff = 0;
+			offset = queue_irq_offset(dev);
+		}
+
+		/*
+		 * The poll queue(s) doesn't have an IRQ (and hence IRQ
+		 * affinity), so use the regular blk-mq cpu mapping
+		 */
+		map->queue_offset = qoff;
+		if (i != HCTX_TYPE_POLL)
+			blk_mq_pci_map_queues(map, to_pci_dev(dev->dev), offset);
+		else
+			blk_mq_map_queues(map);
+		qoff += map->nr_queues;
+		offset += map->nr_queues;
+	}
 
 	return blk_mq_pci_map_queues(&set->map[0], to_pci_dev(dev->dev),
 			dev->num_vecs > 1 ? 1 /* admin queue */ : 0);
@@ -1495,6 +1524,15 @@ static const struct blk_mq_ops nvme_mq_admin_ops = {
 	.timeout	= nvme_timeout,
 };
 
+#define NVME_SHARED_MQ_OPS					\
+	.queue_rq		= nvme_queue_rq,		\
+	.commit_rqs		= nvme_commit_rqs,		\
+	.complete		= nvme_pci_complete_rq,		\
+	.init_hctx		= nvme_init_hctx,		\
+	.init_request		= nvme_init_request,		\
+	.map_queues		= nvme_pci_map_queues,		\
+	.timeout		= nvme_timeout			\
+
 static const struct blk_mq_ops nvme_mq_ops = {
 	.queue_rq	= nvme_queue_rq,
 	.complete	= nvme_pci_complete_rq,
@@ -1640,6 +1678,13 @@ static int nvme_create_io_queues(struct nvme_dev *dev)
 	}
 
 	max = min(dev->max_qid, dev->ctrl.queue_count - 1);
+	if (max != 1 && dev->io_queues[HCTX_TYPE_POLL]) {
+		rw_queues = dev->io_queues[HCTX_TYPE_DEFAULT] +
+				dev->io_queues[HCTX_TYPE_READ];
+	} else {
+		rw_queues = max;
+	}
+
 	for (i = dev->online_queues; i <= max; i++) {
 		ret = nvme_create_queue(&dev->queues[i], i);
 		if (ret)
@@ -1913,6 +1958,116 @@ static int nvme_setup_host_mem(struct nvme_dev *dev)
 	return ret;
 }
 
+static void nvme_calc_io_queues(struct nvme_dev *dev, unsigned int nr_io_queues)
+{
+	unsigned int this_w_queues = write_queues;
+	unsigned int this_p_queues = poll_queues;
+
+	/*
+	 * Setup read/write queue split
+	 */
+	if (nr_io_queues == 1) {
+		dev->io_queues[HCTX_TYPE_DEFAULT] = 1;
+		dev->io_queues[HCTX_TYPE_READ] = 0;
+		dev->io_queues[HCTX_TYPE_POLL] = 0;
+		return;
+	}
+
+	/*
+	 * Configure number of poll queues, if set
+	 */
+	if (this_p_queues) {
+		/*
+		 * We need at least one queue left. With just one queue, we'll
+		 * have a single shared read/write set.
+		 */
+		if (this_p_queues >= nr_io_queues) {
+			this_w_queues = 0;
+			this_p_queues = nr_io_queues - 1;
+		}
+
+		dev->io_queues[HCTX_TYPE_POLL] = this_p_queues;
+		nr_io_queues -= this_p_queues;
+	} else
+		dev->io_queues[HCTX_TYPE_POLL] = 0;
+
+	/*
+	 * If 'write_queues' is set, ensure it leaves room for at least
+	 * one read queue
+	 */
+	if (this_w_queues >= nr_io_queues)
+		this_w_queues = nr_io_queues - 1;
+
+	/*
+	 * If 'write_queues' is set to zero, reads and writes will share
+	 * a queue set.
+	 */
+	if (!this_w_queues) {
+		dev->io_queues[HCTX_TYPE_DEFAULT] = nr_io_queues;
+		dev->io_queues[HCTX_TYPE_READ] = 0;
+	} else {
+		dev->io_queues[HCTX_TYPE_DEFAULT] = this_w_queues;
+		dev->io_queues[HCTX_TYPE_READ] = nr_io_queues - this_w_queues;
+	}
+}
+
+static int nvme_setup_irqs(struct nvme_dev *dev, int nr_io_queues)
+{
+	struct pci_dev *pdev = to_pci_dev(dev->dev);
+	int irq_sets[2];
+	struct irq_affinity affd = {
+		.pre_vectors = 1,
+		.nr_sets = ARRAY_SIZE(irq_sets),
+		.sets = irq_sets,
+	};
+	int result = 0;
+
+	/*
+	 * For irq sets, we have to ask for minvec == maxvec. This passes
+	 * any reduction back to us, so we can adjust our queue counts and
+	 * IRQ vector needs.
+	 */
+	do {
+		nvme_calc_io_queues(dev, nr_io_queues);
+		irq_sets[0] = dev->io_queues[HCTX_TYPE_DEFAULT];
+		irq_sets[1] = dev->io_queues[HCTX_TYPE_READ];
+		if (!irq_sets[1])
+			affd.nr_sets = 1;
+
+		/*
+		 * If we got a failure and we're down to asking for just
+		 * 1 + 1 queues, just ask for a single vector. We'll share
+		 * that between the single IO queue and the admin queue.
+		 */
+		if (!(result < 0 && nr_io_queues == 1))
+			nr_io_queues = irq_sets[0] + irq_sets[1] + 1;
+
+		result = pci_alloc_irq_vectors_affinity(pdev, nr_io_queues,
+				nr_io_queues,
+				PCI_IRQ_ALL_TYPES | PCI_IRQ_AFFINITY, &affd);
+
+		/*
+		 * Need to reduce our vec counts. If we get ENOSPC, the
+		 * platform should support mulitple vecs, we just need
+		 * to decrease our ask. If we get EINVAL, the platform
+		 * likely does not. Back down to ask for just one vector.
+		 */
+		if (result == -ENOSPC) {
+			nr_io_queues--;
+			if (!nr_io_queues)
+				return result;
+			continue;
+		} else if (result == -EINVAL) {
+			nr_io_queues = 1;
+			continue;
+		} else if (result <= 0)
+			return -EIO;
+		break;
+	} while (1);
+
+	return result;
+}
+
 static int nvme_setup_io_queues(struct nvme_dev *dev)
 {
 	struct nvme_queue *adminq = &dev->queues[0];
@@ -1964,7 +2119,13 @@ static int nvme_setup_io_queues(struct nvme_dev *dev)
 	if (result <= 0)
 		return -EIO;
 	dev->num_vecs = result;
-	dev->max_qid = max(result - 1, 1);
+	result = max(result - 1, 1);
+	dev->max_qid = result + dev->io_queues[HCTX_TYPE_POLL];
+
+	dev_info(dev->ctrl.device, "%d/%d/%d default/read/poll queues\n",
+					dev->io_queues[HCTX_TYPE_DEFAULT],
+					dev->io_queues[HCTX_TYPE_READ],
+					dev->io_queues[HCTX_TYPE_POLL]);
 
 	/*
 	 * Should investigate if there's a performance win from allocating
@@ -2065,8 +2226,13 @@ static int nvme_dev_add(struct nvme_dev *dev)
 	int ret;
 
 	if (!dev->ctrl.tagset) {
-		dev->tagset.ops = &nvme_mq_ops;
+		if (!dev->io_queues[HCTX_TYPE_POLL])
+			dev->tagset.ops = &nvme_mq_ops;
+		else
+			dev->tagset.ops = &nvme_mq_poll_noirq_ops;
+
 		dev->tagset.nr_hw_queues = dev->online_queues - 1;
+		dev->tagset.nr_maps = HCTX_MAX_TYPES;
 		dev->tagset.timeout = NVME_IO_TIMEOUT;
 		dev->tagset.numa_node = dev_to_node(dev->dev);
 		dev->tagset.queue_depth =
