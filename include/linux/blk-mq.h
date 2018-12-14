@@ -372,4 +372,14 @@ static inline void blk_mq_cleanup_rq(struct request *rq)
 		rq->q->mq_ops->cleanup_rq(rq);
 }
 
+static inline blk_qc_t request_to_qc_t(struct blk_mq_hw_ctx *hctx,
+		struct request *rq)
+{
+	if (rq->tag != -1)
+		return rq->tag | (hctx->queue_num << BLK_QC_T_SHIFT);
+
+	return rq->internal_tag | (hctx->queue_num << BLK_QC_T_SHIFT) |
+			BLK_QC_T_INTERNAL;
+}
+
 #endif
