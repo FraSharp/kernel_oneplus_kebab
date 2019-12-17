@@ -2971,6 +2971,9 @@ bfq_merge_bfqqs(struct bfq_data *bfqd, struct bfq_io_cq *bic,
 {
 	bfq_log_bfqq(bfqd, bfqq, "merging with queue %lu",
 		(unsigned long)new_bfqq->pid);
+
+	BFQ_BUG_ON(new_bfqq == &bfqd->oom_bfqq);
+
 	BFQ_BUG_ON(bfqq->bic && bfqq->bic == new_bfqq->bic);
 	/* Save weight raising and idle window of the merged queues */
 	bfq_bfqq_save_state(bfqq);
@@ -3068,6 +3071,8 @@ static bool bfq_allow_bio_merge(struct request_queue *q, struct request *rq,
 	 */
 	new_bfqq = bfq_setup_cooperator(bfqd, bfqq, bio, false);
 	BFQ_BUG_ON(new_bfqq == bfqq);
+	BFQ_BUG_ON(new_bfqq == &bfqd->oom_bfqq);
+
 	if (new_bfqq) {
 		/*
 		 * bic still points to bfqq, then it has not yet been
@@ -6123,6 +6128,7 @@ static bool __bfq_insert_request(struct bfq_data *bfqd, struct request *rq)
 		*new_bfqq = bfq_setup_cooperator(bfqd, bfqq, rq, true);
 	bool waiting, idle_timer_disabled = false;
 	BFQ_BUG_ON(!bfqq);
+	BFQ_BUG_ON(new_bfqq == &bfqd->oom_bfqq);
 
 	assert_spin_locked(&bfqd->lock);
 	bfq_log_bfqq(bfqd, bfqq, "rq %p bfqq %p", rq, bfqq);
@@ -6941,6 +6947,7 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
 	if (likely(!new_queue)) {
 		/* If the queue was seeky for too long, break it apart. */
 		if (bfq_bfqq_coop(bfqq) && bfq_bfqq_split_coop(bfqq)) {
+			BFQ_BUG_ON(bfqq == &bfqd->oom_bfqq);
 			BFQ_BUG_ON(!is_sync);
 			bfq_log_bfqq(bfqd, bfqq, "breaking apart bfqq");
 
@@ -6959,7 +6966,6 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
 				bfqq_already_existing = true;
 
 			BFQ_BUG_ON(!bfqq);
-			BFQ_BUG_ON(bfqq == &bfqd->oom_bfqq);
 		}
 	}
 
