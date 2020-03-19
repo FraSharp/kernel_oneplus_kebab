@@ -697,6 +697,22 @@ else
 KBUILD_CFLAGS   += -O2
 endif
 
+ifdef CONFIG_CC_IS_CLANG
+ifdef CONFIG_LLVM_POLLY
+KBUILD_CFLAGS   += -mllvm -polly \
+		   -mllvm -polly-ast-use-context \
+		   -mllvm -polly-invariant-load-hoisting \
+		   -mllvm -polly-run-inliner \
+		   -mllvm -polly-vectorizer=stripmine
+# Polly may optimise loops with dead paths beyound what the linker
+# # can understand. This may negate the effect of the linker's DCE
+# # so we tell Polly to perfom proven DCE on the loops it optimises
+# # in order to preserve the overall effect of the linker's DCE.
+ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
+   	KBUILD_CFLAGS   += -mllvm -polly-run-dce
+endif
+endif
+
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
 KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
