@@ -2979,7 +2979,6 @@ static void bfq_bfqq_save_state(struct bfq_queue *bfqq)
 		     bfqq->wr_cur_max_time);
 }
 
-static
 void bfq_release_process_ref(struct bfq_data *bfqd, struct bfq_queue *bfqq)
 {
 	/*
