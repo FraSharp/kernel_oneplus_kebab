@@ -40,7 +40,13 @@ static struct snapshot_data {
 	bool ready;
 	bool platform_support;
 	bool free_bitmaps;
+	struct inode *bd_inode;
 } snapshot_state;
+
+int is_hibernate_resume_dev(const struct inode *bd_inode)
+{
+	return hibernation_available() && snapshot_state.bd_inode == bd_inode;
+}
 
 static int snapshot_open(struct inode *inode, struct file *filp)
 {
@@ -100,6 +106,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
 	data->frozen = false;
 	data->ready = false;
 	data->platform_support = false;
+	data->bd_inode = NULL;
 
  Unlock:
 	unlock_system_sleep();
@@ -115,6 +122,7 @@ static int snapshot_release(struct inode *inode, struct file *filp)
 
 	swsusp_free();
 	data = filp->private_data;
+	data->bd_inode = NULL;
 	free_all_swap_pages(data->swap);
 	if (data->frozen) {
 		pm_restore_gfp_mask();
@@ -197,6 +205,54 @@ unlock:
 	unlock_system_sleep();
 
 	return res;
+}
+
+struct compat_resume_swap_area {
+	compat_loff_t offset;
+	u32 dev;
+} __packed;
+
+static int snapshot_set_swap_area(struct snapshot_data *data,
+		void __user *argp)
+{
+	struct block_device *bdev;
+	sector_t offset;
+	dev_t swdev;
+
+	if (swsusp_swap_in_use())
+		return -EPERM;
+
+	if (in_compat_syscall()) {
+		struct compat_resume_swap_area swap_area;
+
+		if (copy_from_user(&swap_area, argp, sizeof(swap_area)))
+			return -EFAULT;
+		swdev = new_decode_dev(swap_area.dev);
+		offset = swap_area.offset;
+	} else {
+		struct resume_swap_area swap_area;
+
+		if (copy_from_user(&swap_area, argp, sizeof(swap_area)))
+			return -EFAULT;
+		swdev = new_decode_dev(swap_area.dev);
+		offset = swap_area.offset;
+	}
+
+	/*
+	 * User space encodes device types as two-byte values,
+	 * so we need to recode them
+	 */
+	if (!swdev) {
+		data->swap = -1;
+		return -EINVAL;
+	}
+	data->swap = swap_type_of(swdev, offset, &bdev);
+	if (data->swap < 0)
+		return -ENODEV;
+
+	data->bd_inode = bdev->bd_inode;
+	bdput(bdev);
+	return 0;
 }
 
 static long snapshot_ioctl(struct file *filp, unsigned int cmd,
