@@ -1503,7 +1503,7 @@ static void msm_pinctrl_resume(void)
 	const char *name = "null";
 	struct msm_pinctrl *pctrl = msm_pinctrl_data;
 
-	if (!msm_show_resume_irq_mask)
+	if (1)
 		return;
 
 	raw_spin_lock_irqsave(&pctrl->lock, flags);
