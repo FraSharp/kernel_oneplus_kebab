@@ -395,7 +395,7 @@ static void gic_show_resume_irq(struct gic_chip_data *gic)
 		else if (desc->action && desc->action->name)
 			name = desc->action->name;
 
-		if (!msm_show_resume_irq_mask)
+		if (msm_show_resume_irq_mask)
 			pr_warn("%s: %d triggered %s\n", __func__, irq, name);
 		log_irq_wakeup_reason(irq);
 	}
