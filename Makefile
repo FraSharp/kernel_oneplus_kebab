@@ -296,7 +296,16 @@ include scripts/Kbuild.include
 
 # Read KERNELRELEASE from include/config/kernel.release (if it exists)
 KERNELRELEASE = $(shell cat include/config/kernel.release 2> /dev/null)
+
+include include/config/auto.conf
+
+ifeq ($(CONFIG_HAVE_CUSTOM_RELEASE),y)
+CKERNELRELEASE = ${CONFIG_CUSTOM_RELEASE}
+export CKERNELRELEASE
+endif
+
 KERNELVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)
+
 export VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION
 
 include scripts/subarch.include
@@ -1295,15 +1304,23 @@ endif
 uts_len := 64
 ifneq (,$(BUILD_NUMBER))
 	UTS_RELEASE=$(KERNELRELEASE)-ab$(BUILD_NUMBER)
+ifeq ($(CONFIG_HAVE_CUSTOM_RELEASE),y)
+	CUTS_RELEASE=$(CKERNELRELEASE)-ab$(BUILD_NUMBER)
+endif
 else
 	UTS_RELEASE=$(KERNELRELEASE)
+ifeq ($(CONFIG_HAVE_CUSTOM_RELEASE),y)
+	CUTS_RELEASE=$(CKERNELRELEASE)
 endif
+endif
+
 define filechk_utsrelease.h
 	if [ `echo -n "$(UTS_RELEASE)" | wc -c ` -gt $(uts_len) ]; then \
 		echo '"$(UTS_RELEASE)" exceeds $(uts_len) characters' >&2;    \
 		exit 1;                                                       \
 	fi;                                                             \
-	(echo \#define UTS_RELEASE \"$(UTS_RELEASE)\";)
+	(echo \#define UTS_RELEASE \"$(UTS_RELEASE)\";									\
+		echo \#define CUTS_RELEASE \"$(CUTS_RELEASE)\";)
 endef
 
 define filechk_version.h
