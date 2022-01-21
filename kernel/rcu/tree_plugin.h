@@ -524,25 +524,26 @@ rcu_preempt_deferred_qs_irqrestore(struct task_struct *t, unsigned long flags)
 		}
 
 		/*
+		 * If this was the last task on the expedited lists,
+		 * then we need to report up the rcu_node hierarchy.
+		 */
+		if (!empty_exp && empty_exp_now)
+			rcu_report_exp_rnp(rnp, true);
+
+		/*
 		 * Unboost if we were boosted.
 		 * Disable preemption to make sure completion is signalled
 		 * without having the task de-scheduled with its priority
 		 * lowered (in which case we're left with no boosted thread
 		 * and possible RCU starvation).
 		 */
-		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex) {
+		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
 			preempt_disable();
-			rt_mutex_unlock(&rnp->boost_mtx);
+			rt_mutex_futex_unlock(&rnp->boost_mtx);
 			complete(&rnp->boost_completion);
 			preempt_enable();
 		}
 
-		/*
-		 * If this was the last task on the expedited lists,
-		 * then we need to report up the rcu_node hierarchy.
-		 */
-		if (!empty_exp && empty_exp_now)
-			rcu_report_exp_rnp(rnp, true);
 	} else {
 		local_irq_restore(flags);
 	}
