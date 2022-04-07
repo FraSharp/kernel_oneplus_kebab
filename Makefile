@@ -368,22 +368,22 @@ endif
 KBUILD_HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 \
 		-fomit-frame-pointer -std=gnu89 $(HOST_LFS_CFLAGS) \
 		$(HOSTCFLAGS)
-KBUILD_HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
+KBUILD_HOSTCXXFLAGS := -O3 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
 KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
 KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 
 # Make variables (CC, etc...)
 CPP		= $(CC) -E
 ifneq ($(LLVM),)
-CC		= clang
-LD		= ld.lld
-AR		= llvm-ar
-NM		= llvm-nm
-OBJCOPY		= llvm-objcopy
-OBJDUMP		= llvm-objdump
-READELF		= llvm-readelf
-OBJSIZE		= llvm-size
-STRIP		= llvm-strip
+CC		= $(CLANG_PATH)clang
+LD		= $(CLANG_PATH)ld.lld
+AR		= $(CLANG_PATH)llvm-ar
+NM		= $(CLANG_PATH)llvm-nm
+OBJCOPY		= $(CLANG_PATH)llvm-objcopy
+OBJDUMP		= $(CLANG_PATH)llvm-objdump
+READELF		= $(CLANG_PATH)llvm-readelf
+OBJSIZE		= $(CLANG_PATH)llvm-size
+STRIP		= $(CLANG_PATH)llvm-strip
 else
 CC		= $(CROSS_COMPILE)gcc
 LD		= $(CROSS_COMPILE)ld
@@ -636,8 +636,8 @@ endif
 ifdef CONFIG_LTO_CLANG
 # use llvm-ar for building symbol tables from IR files, and llvm-nm instead
 # of objdump for processing symbol versions and exports
-LLVM_AR		:= llvm-ar
-LLVM_NM		:= llvm-nm
+LLVM_AR		:= $(CLANG_PATH)llvm-ar
+LLVM_NM		:= $(CLANG_PATH)llvm-nm
 export LLVM_AR LLVM_NM
 endif
 
