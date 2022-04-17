@@ -20,6 +20,7 @@
 #include <linux/phy/phy-qcom-ufs.h>
 #include <linux/clk/qcom.h>
 #include <linux/bitfield.h>
+#include <linux/blkdev.h>
 
 #ifdef CONFIG_QCOM_BUS_SCALING
 #include <linux/msm-bus.h>
@@ -33,6 +34,7 @@
 #include "ufs-qcom-debugfs.h"
 #include "ufs_quirks.h"
 #include "ufshcd-crypto-qti.h"
+#include "../../../block/blk.h"
 
 #define MAX_PROP_SIZE		   32
 #define VDDP_REF_CLK_MIN_UV        1200000
