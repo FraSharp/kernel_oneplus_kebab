@@ -727,20 +727,6 @@ void part_round_stats(struct request_queue *q, int cpu, struct hd_struct *part)
 }
 EXPORT_SYMBOL_GPL(part_round_stats);
 
-#ifdef CONFIG_PM
-static void blk_pm_put_request(struct request *rq)
-{
-	if (rq->q->dev && !(rq->rq_flags & RQF_PM) &&
-	    (rq->rq_flags & RQF_PM_ADDED)) {
-		rq->rq_flags &= ~RQF_PM_ADDED;
-		if (!--rq->q->nr_pending)
-			pm_runtime_mark_last_busy(rq->q->dev);
-	}
-}
-#else
-static inline void blk_pm_put_request(struct request *rq) {}
-#endif
-
 void blk_put_request(struct request *req)
 {
 	blk_mq_free_request(req);
@@ -1518,30 +1504,6 @@ void blk_account_io_done(struct request *req, u64 now)
 		part_stat_unlock();
 	}
 }
-
-#ifdef CONFIG_PM
-/*
- * Don't process normal requests when queue is suspended
- * or in the process of suspending/resuming
- */
-static bool blk_pm_allow_request(struct request *rq)
-{
-	switch (rq->q->rpm_status) {
-	case RPM_RESUMING:
-	case RPM_SUSPENDING:
-		return rq->rq_flags & RQF_PM;
-	case RPM_SUSPENDED:
-		return false;
-	default:
-		return true;
-	}
-}
-#else
-static bool blk_pm_allow_request(struct request *rq)
-{
-	return true;
-}
-#endif
 
 void blk_account_io_start(struct request *rq, bool new_io)
 {
