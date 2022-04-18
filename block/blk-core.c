@@ -521,10 +521,6 @@ static void blk_rq_timed_out_timer(struct timer_list *t)
 	kblockd_schedule_work(&q->timeout_work);
 }
 
-static void blk_timeout_work_dummy(struct work_struct *work)
-{
-}
-
 /**
  * blk_alloc_queue_node - allocate a request queue
  * @gfp_mask: memory allocation flags
