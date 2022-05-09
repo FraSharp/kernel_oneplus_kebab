@@ -3974,14 +3974,14 @@ static inline bool cpu_is_in_target_set(struct task_struct *p, int cpu)
 		first_cpu = rd->min_cap_orig_cpu;
 	}
 
-	next_usable_cpu = cpumask_next(first_cpu - 1, &p->cpus_allowed);
+	next_usable_cpu = cpumask_next(first_cpu - 1, p->cpus_ptr);
 	return cpu >= next_usable_cpu || next_usable_cpu >= nr_cpu_ids;
 }
 
 static inline bool
 bias_to_this_cpu(struct task_struct *p, int cpu, int start_cpu)
 {
-	bool base_test = cpumask_test_cpu(cpu, &p->cpus_allowed) &&
+	bool base_test = cpumask_test_cpu(cpu, p->cpus_ptr) &&
 			cpu_active(cpu) && cpu_is_in_target_set(p, cpu);
 	bool start_cap_test = (capacity_orig_of(cpu) >=
 					capacity_orig_of(start_cpu));
@@ -9233,7 +9233,7 @@ next:
 #ifdef CONFIG_SCHED_WALT
 		trace_sched_load_balance_skip_tasks(env->src_cpu, env->dst_cpu,
 				env->src_grp_type, p->pid, load, task_util(p),
-				cpumask_bits(&p->cpus_allowed)[0]);
+				cpumask_bits(p->cpus_ptr)[0]);
 #endif
 		list_move(&p->se.group_node, tasks);
 	}
