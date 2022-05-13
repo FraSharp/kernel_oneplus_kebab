@@ -1745,6 +1745,7 @@ static void ngd_dom_up(struct work_struct *work)
 	mutex_unlock(&dev->ssr_lock);
 }
 
+#ifdef CONFIG_IPC_LOGGING
 static ssize_t debug_mask_show(struct device *device,
 				struct device_attribute *attr,
 				char *buf)
@@ -1767,6 +1768,17 @@ static ssize_t debug_mask_store(struct device *device,
 		dev->ipc_log_mask = DBG_LEV;
 	return count;
 }
+#else
+static ssize_t debug_mask_show(struct device *device,
+			    struct device_attribute *attr,
+			    char *buf)
+{ return 0; }
+
+static ssize_t debug_mask_store(struct device *device,
+			     struct device_attribute *attr,
+			     const char *buf, size_t count)
+{ return 0; }
+#endif /* CONFIG_IPC_LOGGING */
 
 static DEVICE_ATTR_RW(debug_mask);
 
@@ -1892,6 +1904,7 @@ static int ngd_slim_probe(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dev);
 	slim_set_ctrldata(&dev->ctrl, dev);
 
+#ifdef CONFIG_IPC_LOGGING
 	/* Create IPC log context */
 	dev->ipc_slimbus_log = ipc_log_context_create(IPC_SLIMBUS_LOG_PAGES,
 						dev_name(dev->dev), 0);
@@ -1918,6 +1931,7 @@ static int ngd_slim_probe(struct platform_device *pdev)
 	else
 		SLIM_INFO(dev, "start error logging for slim dev %s\n",
 							ipc_err_log_name);
+#endif /* CONFIG_IPC_LOGGING */
 
 	ret = sysfs_create_file(&dev->dev->kobj, &dev_attr_debug_mask.attr);
 	if (ret) {

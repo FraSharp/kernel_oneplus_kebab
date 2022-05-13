@@ -26,6 +26,7 @@
 #define DEBUGFS_TEMP_BUF_SIZE 4
 #define TX_TIMEOUT (5 * HZ)
 
+#ifdef CONFIG_IPC_LOGGING
 #define IPA_ECM_IPC_LOG_PAGES 50
 
 #define IPA_ECM_IPC_LOGGING(buf, fmt, args...) \
@@ -69,6 +70,14 @@ static void *ipa_ecm_logbuf;
 				DRIVER_NAME " %s:%d " fmt, ## args); \
 		} \
 	} while (0)
+
+#else /* CONFIG_IPC_LOGGING */
+#define IPA_ECM_IPC_LOGGING(buf, fmt, args...)
+#define ECM_IPA_DEBUG(fmt, args...)
+#define ECM_IPA_DEBUG_XMIT(fmt, args...)
+#define ECM_IPA_INFO(fmt, args...)
+#define ECM_IPA_ERROR(fmt, args...)
+#endif /* CONFIG_IPC_LOGGING */
 
 #define NULL_CHECK(ptr) \
 	do { \

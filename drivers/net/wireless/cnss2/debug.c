@@ -954,6 +954,7 @@ void cnss_debugfs_destroy(struct cnss_plat_data *plat_priv)
 }
 #endif
 
+#if defined(CONFIG_IPC_LOGGING)
 int cnss_debug_init(void)
 {
 	cnss_ipc_log_context = ipc_log_context_create(CNSS_IPC_LOG_PAGES,
@@ -986,3 +987,12 @@ void cnss_debug_deinit(void)
 		cnss_ipc_log_context = NULL;
 	}
 }
+#else
+int cnss_debug_init(void)
+{
+	return 0;
+}
+void cnss_debug_deinit(void)
+{
+}
+#endif /* defined(CONFIG_IPC_LOGGING) */
