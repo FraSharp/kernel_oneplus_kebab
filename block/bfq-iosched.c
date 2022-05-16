@@ -5529,6 +5529,7 @@ static void bfq_update_dispatch_stats(struct request_queue *q,
 #else
 static inline void bfq_update_dispatch_stats(struct request_queue *q,
 					     struct request *rq,
+					     struct bfq_queue *in_serv_queue,
 					     bool idle_timer_disabled) {}
 #endif
 
