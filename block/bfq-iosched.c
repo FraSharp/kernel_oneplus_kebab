@@ -4487,13 +4487,6 @@ static unsigned long bfq_bfqq_softrt_next_start(struct bfq_data *bfqd,
 		    jiffies + nsecs_to_jiffies(bfqq->bfqd->bfq_slice_idle) + 4);
 }
 
-static bool bfq_bfqq_injectable(struct bfq_queue *bfqq)
-{
-	return BFQQ_SEEKY(bfqq) && bfqq->wr_coeff == 1 &&
-		blk_queue_nonrot(bfqq->bfqd->queue) &&
-		bfqq->bfqd->hw_tag;
-}
-
 /**
  * bfq_bfqq_expire - expire a queue.
  * @bfqd: device owning the queue.
@@ -4849,20 +4842,6 @@ static struct bfq_queue *bfq_choose_bfqq_for_injection(struct bfq_data *bfqd)
 {
 	struct bfq_queue *bfqq, *in_serv_bfqq = bfqd->in_service_queue;
 	unsigned int limit = in_serv_bfqq->inject_limit;
-	/*
-	 * If
-	 * - bfqq is not weight-raised and therefore does not carry
-	 *   time-critical I/O,
-	 * or
-	 * - regardless of whether bfqq is weight-raised, bfqq has
-	 *   however a long think time, during which it can absorb the
-	 *   effect of an appropriate number of extra I/O requests
-	 *   from other queues (see bfq_update_inject_limit for
-	 *   details on the computation of this number);
-	 * then injection can be performed without restrictions.
-	 */
-	bool in_serv_always_inject = in_serv_bfqq->wr_coeff == 1 ||
-		!bfq_bfqq_has_short_ttime(in_serv_bfqq);
 
 	/*
 	 * If
@@ -7034,6 +7013,9 @@ static void bfq_finish_requeue_request(struct request *rq)
 
 		spin_lock_irqsave(&bfqd->lock, flags);
 
+		if (rq == bfqd->waited_rq)
+			bfq_update_inject_limit(bfqd, bfqq);
+
 		bfq_completed_request(bfqq, bfqd);
 		bfq_finish_requeue_request_body(bfqq);
 
@@ -7265,10 +7247,10 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
 		/* If the queue was seeky for too long, break it apart. */
 		if (bfq_bfqq_coop(bfqq) && bfq_bfqq_split_coop(bfqq) &&
 				!bic->stably_merged) {
+			struct bfq_queue *old_bfqq = bfqq;
 			BFQ_BUG_ON(bfqq == &bfqd->oom_bfqq);
 			BFQ_BUG_ON(!is_sync);
 			bfq_log_bfqq(bfqd, bfqq, "breaking apart bfqq");
-			struct bfq_queue *old_bfqq = bfqq;
 
 			/* Update bic before losing reference to bfqq */
 			if (bfq_bfqq_in_large_burst(bfqq))
