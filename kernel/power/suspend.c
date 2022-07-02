@@ -514,8 +514,13 @@ int suspend_devices_and_enter(suspend_state_t state)
 		last_dev = suspend_stats.last_failed_dev + REC_FAILED_NUM - 1;
 		last_dev %= REC_FAILED_NUM;
 		pr_err("Some devices failed to suspend, or early wake event detected\n");
+#ifndef CONFIG_PM_DEBUG
 		log_suspend_abort_reason("%s device failed to suspend, or early wake event detected",
 			suspend_stats.failed_devs[last_dev]);
+#else
+		pr_err("%s device failed to suspend, or early wake event detected",
+				suspend_stats.failed_devs[last_dev]);
+#endif
 		goto Recover_platform;
 	}
 	suspend_test_finish("suspend devices");
@@ -594,7 +599,9 @@ static int enter_state(suspend_state_t state)
 	trace_suspend_resume(TPS("sync_filesystems"), 0, false);
 #endif
 
-	pm_pr_dbg("Preparing system for sleep (%s)\n", mem_sleep_labels[state]);
+#ifdef CONFIG_PM_DEBUG
+	pr_info("Preparing system for sleep (%s)\n", mem_sleep_labels[state]);
+#endif
 	pm_suspend_clear_flags();
 	error = suspend_prepare(state);
 	if (error)
@@ -604,14 +611,18 @@ static int enter_state(suspend_state_t state)
 		goto Finish;
 
 	trace_suspend_resume(TPS("suspend_enter"), state, false);
-	pm_pr_dbg("Suspending system (%s)\n", mem_sleep_labels[state]);
+#ifdef CONFIG_PM_DEBUG
+	pr_info("Suspending system (%s)\n", mem_sleep_labels[state]);
+#endif
 	pm_restrict_gfp_mask();
 	error = suspend_devices_and_enter(state);
 	pm_restore_gfp_mask();
 
  Finish:
 	events_check_enabled = false;
-	pm_pr_dbg("Finishing wakeup.\n");
+#ifdef CONFIG_PM_DEBUG
+	pr_info("Finishing wakeup.\n");
+#endif
 	suspend_finish();
  Unlock:
 	mutex_unlock(&system_transition_mutex);
