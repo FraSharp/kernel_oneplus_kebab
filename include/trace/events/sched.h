@@ -58,9 +58,9 @@ TRACE_EVENT(sched_kthread_stop_ret,
 TRACE_EVENT(sched_enq_deq_task,
 
 	TP_PROTO(struct task_struct *p, bool enqueue,
-				unsigned int cpus_allowed),
+				unsigned int cpus_ptr),
 
-	TP_ARGS(p, enqueue, cpus_allowed),
+	TP_ARGS(p, enqueue, cpus_ptr),
 
 	TP_STRUCT__entry(
 		__array(char,		comm, TASK_COMM_LEN)
@@ -71,7 +71,7 @@ TRACE_EVENT(sched_enq_deq_task,
 		__field(unsigned int,	nr_running)
 		__field(unsigned long,	cpu_load)
 		__field(unsigned int,	rt_nr_running)
-		__field(unsigned int,	cpus_allowed)
+		__field(unsigned int,	cpus_ptr)
 		__field(unsigned int,	demand)
 		__field(unsigned int,	pred_demand)
 	),
@@ -85,7 +85,7 @@ TRACE_EVENT(sched_enq_deq_task,
 		__entry->nr_running	= task_rq(p)->nr_running;
 		__entry->cpu_load	= task_rq(p)->cpu_load[0];
 		__entry->rt_nr_running	= task_rq(p)->rt.rt_nr_running;
-		__entry->cpus_allowed	= cpus_allowed;
+		__entry->cpus_ptr	= cpus_ptr;
 		__entry->demand		= task_load(p);
 		__entry->pred_demand	= task_pl(p);
 	),
@@ -96,7 +96,7 @@ TRACE_EVENT(sched_enq_deq_task,
 			__entry->comm, __entry->pid,
 			__entry->prio, __entry->nr_running,
 			__entry->cpu_load, __entry->rt_nr_running,
-			__entry->cpus_allowed, __entry->demand,
+			__entry->cpus_ptr, __entry->demand,
 			__entry->pred_demand)
 );
 
@@ -1242,7 +1242,7 @@ TRACE_EVENT(sched_task_util,
 		__field(bool,		rtg_skip_min)
 		__field(int,		start_cpu)
 		__field(u32,		unfilter)
-		__field(unsigned long,  cpus_allowed)
+		__field(unsigned long,  cpus_ptr)
 		__field(bool,		low_latency)
 	),
 
@@ -1269,7 +1269,7 @@ TRACE_EVENT(sched_task_util,
 		__entry->unfilter		= 0;
 		__entry->low_latency		= 0;
 #endif
-		__entry->cpus_allowed           = cpumask_bits(&p->cpus_allowed)[0];
+		__entry->cpus_ptr	        = cpumask_bits(p->cpus_ptr)[0];
 	),
 
 	TP_printk("pid=%d comm=%s util=%lu prev_cpu=%d candidates=%#lx best_energy_cpu=%d sync=%d need_idle=%d fastpath=%d placement_boost=%d latency=%llu stune_boosted=%d is_rtg=%d rtg_skip_min=%d start_cpu=%d unfilter=%u affine=%#lx low_latency=%d",
@@ -1278,7 +1278,7 @@ TRACE_EVENT(sched_task_util,
 		__entry->need_idle, __entry->fastpath, __entry->placement_boost,
 		__entry->latency, __entry->stune_boosted,
 		__entry->is_rtg, __entry->rtg_skip_min, __entry->start_cpu,
-		__entry->unfilter, __entry->cpus_allowed, __entry->low_latency)
+		__entry->unfilter, __entry->cpus_ptr, __entry->low_latency)
 );
 
 /*
