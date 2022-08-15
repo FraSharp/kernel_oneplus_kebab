@@ -3029,6 +3029,9 @@ static int swrm_runtime_resume(struct device *dev)
 	bool aud_core_err = false;
 	struct swr_master *mstr = &swrm->master;
 	struct swr_device *swr_dev;
+	#ifdef OPLUS_BUG_STABILITY
+	u32 temp = 0;
+	#endif /* OPLUS_BUG_STABILITY */
 
 	dev_dbg(dev, "%s: pm_runtime: resume, state:%d\n",
 		__func__, swrm->state);
@@ -3112,6 +3115,13 @@ static int swrm_runtime_resume(struct device *dev)
 				mutex_lock(&swrm->reslock);
 			}
 		} else {
+			#ifdef OPLUS_BUG_STABILITY
+			if (swrm->swrm_hctl_reg) {
+				temp = ioread32(swrm->swrm_hctl_reg);
+				temp &= 0xFFFFFFFD;
+				iowrite32(temp, swrm->swrm_hctl_reg);
+			}
+			#endif /* OPLUS_BUG_STABILITY */
 			/*wake up from clock stop*/
 			swr_master_write(swrm, SWRM_MCP_BUS_CTRL_ADDR, 0x2);
 			/* clear and enable bus clash interrupt */
