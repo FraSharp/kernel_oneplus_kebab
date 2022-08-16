@@ -8,6 +8,15 @@ qcom,4295629_goertek_vdl_6100mah_pm660_jan9th2020 {
 	qcom,battery-type = "4295629_goertek_vdl_6100mah_pm660_jan9th2020";
 	qcom,checksum = <0xFBA6>;
 	qcom,gui-version = "PM660GUI - 0.0.0.45";
+	/* Tweak SOC curve to be more linear and monotonic */
+	/* necessary for linearize-soc, like TCSS */
+	qcom,hold-soc-while-full;
+	/* scale MSOC with delta SOC after 100% */
+	qcom,linearize-soc;
+	/* scale SSOC with chg term current >= 90% to avoid jumps */
+	qcom,tcss-enable;
+	/* scale SSOC with BSOC to mitigate jumps */
+	qcom,bass-enable;
 	qcom,fg-profile-data = [
 		 6B 1E 62 F4
 		 65 02 85 EC
