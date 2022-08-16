@@ -212,6 +212,9 @@ struct ftrace_likely_data {
  * would be.
  * [...]
  */
+#ifdef __APPLE__
+#undef __pure
+#endif
 #define __pure			__attribute__((pure))
 #define __aligned(x)		__attribute__((aligned(x)))
 #define __printf(a, b)		__attribute__((format(printf, a, b)))
@@ -223,8 +226,14 @@ struct ftrace_likely_data {
 #define __used			__attribute__((__used__))
 #define __noreturn		__attribute__((noreturn))
 #define __packed		__attribute__((packed))
+#ifdef __APPLE__
+#undef __weak
+#endif
 #define __weak			__attribute__((weak))
 #define __alias(symbol)		__attribute__((alias(#symbol)))
+#ifdef __APPLE__
+#undef __cold
+#endif
 #define __cold			__attribute__((cold))
 #define __section(S)		__attribute__((__section__(#S)))
 
