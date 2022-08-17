@@ -825,7 +825,7 @@ static unsigned long srcu_gp_start_if_needed(struct srcu_struct *ssp,
 	sdp = raw_cpu_ptr(ssp->sda);
 	spin_lock_irqsave_rcu_node(sdp, flags);
 	if (rhp)
-		rcu_segcblist_enqueue(&sdp->srcu_cblist, rhp);
+		rcu_segcblist_enqueue(&sdp->srcu_cblist, rhp, 0);
 	rcu_segcblist_advance(&sdp->srcu_cblist,
 			      rcu_seq_current(&ssp->srcu_gp_seq));
 	s = rcu_seq_snap(&ssp->srcu_gp_seq);
