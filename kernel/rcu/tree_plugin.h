@@ -537,7 +537,7 @@ rcu_preempt_deferred_qs_irqrestore(struct task_struct *t, unsigned long flags)
 		 * lowered (in which case we're left with no boosted thread
 		 * and possible RCU starvation).
 		 */
-		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex)
+		if (IS_ENABLED(CONFIG_RCU_BOOST) && drop_boost_mutex) {
 			preempt_disable();
 			rt_mutex_futex_unlock(&rnp->boost_mtx);
 			complete(&rnp->boost_completion);
