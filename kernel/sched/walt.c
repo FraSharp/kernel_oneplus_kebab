@@ -3720,11 +3720,25 @@ unsigned int sysctl_sched_capacity_margin_down[MAX_MARGIN_LEVELS] = {
 			[0 ... MAX_MARGIN_LEVELS-1] = 1205}; /* ~15% margin */
 
 #ifdef CONFIG_PROC_SYSCTL
-static void sched_update_updown_migrate_values(bool up)
+static void sched_update_updown_migrate_values(bool up, bool boosted)
 {
 	int i = 0, cpu;
 	struct sched_cluster *cluster;
 	int cap_margin_levels = num_sched_clusters - 1;
+	if (up)
+		unsigned int *sched_capacity_margin_up_array = boosted ?
+			sched_capacity_margin_up_boosted :
+			sched_capacity_margin_up,
+			*sysctl_sched_capacity_margin_up_array = boosted ?
+			sysctl_sched_capacity_margin_up_boosted :
+			sysctl_sched_capacity_margin_up;
+	else
+		unsigned int *sched_capacity_margin_down_array = boosted ?
+			sched_capacity_margin_down_boosted :
+			sched_capacity_margin_down,
+			*sysctl_sched_capacity_margin_down_array = boosted ?
+			sysctl_sched_capacity_margin_down_boosted :
+			sysctl_sched_capacity_margin_down;
 
 	if (cap_margin_levels > 1) {
 		/*
@@ -3736,10 +3750,10 @@ static void sched_update_updown_migrate_values(bool up)
 
 				if (up)
 					sched_capacity_margin_up[cpu] =
-					sysctl_sched_capacity_margin_up[i];
+					sysctl_sched_capacity_margin_up_array[i];
 				else
 					sched_capacity_margin_down[cpu] =
-					sysctl_sched_capacity_margin_down[i];
+					sysctl_sched_capacity_margin_down_array[i];
 			}
 
 			if (++i >= cap_margin_levels)
@@ -3749,23 +3763,29 @@ static void sched_update_updown_migrate_values(bool up)
 		for_each_possible_cpu(cpu) {
 			if (up)
 				sched_capacity_margin_up[cpu] =
-					sysctl_sched_capacity_margin_up[0];
+					sysctl_sched_capacity_margin_up_array[0];
 			else
 				sched_capacity_margin_down[cpu] =
-					sysctl_sched_capacity_margin_down[0];
+					sysctl_sched_capacity_margin_down_array[0];
 		}
 	}
 }
 
-int sched_updown_migrate_handler(struct ctl_table *table, int write,
+static int __sched_updown_migrate_handler(struct ctl_table *table, int write,
 				void __user *buffer, size_t *lenp,
-				loff_t *ppos)
+				loff_t *ppos, bool boosted)
 {
 	int ret, i;
 	unsigned int *data = (unsigned int *)table->data;
 	unsigned int *old_val;
 	static DEFINE_MUTEX(mutex);
 	int cap_margin_levels = num_sched_clusters ? num_sched_clusters - 1 : 0;
+	unsigned int *sysctl_sched_capacity_margin_up_array = boosted ?
+			sysctl_sched_capacity_margin_up_boosted :
+			sysctl_sched_capacity_margin_up,
+			*sysctl_sched_capacity_margin_down_array = boosted ?
+			sysctl_sched_capacity_margin_down_boosted :
+			sysctl_sched_capacity_margin_down;
 
 	if (cap_margin_levels <= 0)
 		return -EINVAL;
@@ -3799,8 +3819,8 @@ int sched_updown_migrate_handler(struct ctl_table *table, int write,
 	}
 
 	for (i = 0; i < cap_margin_levels; i++) {
-		if (sysctl_sched_capacity_margin_up[i] >
-				sysctl_sched_capacity_margin_down[i]) {
+		if (sysctl_sched_capacity_margin_up_array[i] >
+				sysctl_sched_capacity_margin_down_array[i]) {
 			memcpy(data, old_val, table->maxlen);
 			ret = -EINVAL;
 			goto free_old_val;
@@ -3808,7 +3828,7 @@ int sched_updown_migrate_handler(struct ctl_table *table, int write,
 	}
 
 	sched_update_updown_migrate_values(data ==
-					&sysctl_sched_capacity_margin_up[0]);
+					&sysctl_sched_capacity_margin_up_array[0], boosted);
 
 free_old_val:
 	kfree(old_val);
@@ -3816,5 +3836,21 @@ unlock_mutex:
 	mutex_unlock(&mutex);
 
 	return ret;
+}
+
+int sched_updown_migrate_handler(struct ctl_table *table, int write,
+				 void __user *buffer, size_t *lenp,
+				 loff_t *ppos)
+{
+	return __sched_updown_migrate_handler(table, write, buffer,
+					      lenp, ppos, false);
+}
+
+int sched_updown_migrate_handler_boosted(struct ctl_table *table, int write,
+				 void __user *buffer, size_t *lenp,
+				 loff_t *ppos)
+{
+	return __sched_updown_migrate_handler(table, write, buffer,
+					      lenp, ppos, true);
 }
 #endif

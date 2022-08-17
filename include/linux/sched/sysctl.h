@@ -32,9 +32,12 @@ extern unsigned int sysctl_sched_cstate_aware;
 extern unsigned int sysctl_sched_wakeup_granularity;
 extern unsigned int sysctl_sched_child_runs_first;
 extern unsigned int sysctl_sched_force_lb_enable;
-#ifdef CONFIG_SCHED_WALT
 extern unsigned int sysctl_sched_capacity_margin_up[MAX_MARGIN_LEVELS];
 extern unsigned int sysctl_sched_capacity_margin_down[MAX_MARGIN_LEVELS];
+extern unsigned int sysctl_sched_capacity_margin_up_boosted[MAX_MARGIN_LEVELS];
+extern unsigned int
+       sysctl_sched_capacity_margin_down_boosted[MAX_MARGIN_LEVELS];
+#ifdef CONFIG_SCHED_WALT
 extern unsigned int sysctl_sched_user_hint;
 extern const int sched_user_hint_max;
 extern unsigned int sysctl_sched_cpu_high_irqload;
@@ -154,6 +157,10 @@ extern int sysctl_sched_uclamp_handler(struct ctl_table *table, int write,
 				       void __user *buffer, size_t *lenp,
 				       loff_t *ppos);
 #endif
+
+extern int sched_updown_migrate_handler_boosted(struct ctl_table *table,
+					int write, void __user *buffer,
+					size_t *lenp, loff_t *ppos);
 
 extern int sysctl_numa_balancing(struct ctl_table *table, int write,
 				 void __user *buffer, size_t *lenp,
