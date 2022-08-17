@@ -9,6 +9,7 @@
 
 /*******Start of LOG TAG Declear**********************************/
 #define TPD_DEVICE "tp_algorithm"
+#ifdef CONFIG_DEBUG_KERNEL
 #define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
 #define TPD_DEBUG(a, arg...)\
     do{\
@@ -29,6 +30,12 @@
             count = 0;\
         }\
     }while(0)
+#else
+#define TPD_INFO(a, arg...)   do {} while(0)
+#define TPD_DEBUG(a, arg...)  do {} while(0)
+#define TPD_DETAIL(a, arg...) do {} while(0)
+#define TPD_SPECIFIC_PRINT(count, a, arg...) do {} while(0)
+#endif
 /*******End of LOG TAG Declear***********************************/
 static void init_touch_point(struct algo_point_buf *point_buf, struct point_info *point)
 {

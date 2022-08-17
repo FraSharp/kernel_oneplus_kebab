@@ -8,6 +8,7 @@
 #include <linux/uaccess.h>
 
 /*******Start of LOG TAG Declear**********************************/
+#ifdef CONFIG_DEBUG_KERNEL
 #define TPD_DEVICE "prevent"
 #define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
 #define TPD_DEBUG(a, arg...)\
@@ -29,6 +30,12 @@
 			count = 0;\
 		}\
 	}while(0)
+#else
+#define TPD_INFO(a, arg...)   do {} while(0)
+#define TPD_DEBUG(a, arg...)  do {} while(0)
+#define TPD_DETAIL(a, arg...) do {} while(0)
+#define TPD_SPECIFIC_PRINT(count, a, arg...) do {} while(0)
+#endif
 /*******End of LOG TAG Declear***********************************/
 #ifdef CONFIG_TOUCHPANEL_ALGORITHM
 __attribute__((weak)) void set_algorithm_direction(struct touchpanel_data *ts,

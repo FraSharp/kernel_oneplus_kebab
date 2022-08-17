@@ -11,6 +11,7 @@
 /*******Part0:LOG TAG Declear********************/
 
 #define TPD_DEVICE "synaptics_common"
+#ifdef CONFIG_DEBUG_KERNEL
 #define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
 #define TPD_DEBUG(a, arg...)\
     do{\
@@ -23,6 +24,11 @@
         if (LEVEL_BASIC != tp_debug)\
             pr_err("[TP]"TPD_DEVICE ": " a, ##arg);\
     }while(0)
+#else
+#define TPD_INFO(a, arg...)   do {} while(0)
+#define TPD_DEBUG(a, arg...)  do {} while(0)
+#define TPD_DETAIL(a, arg...) do {} while(0)
+#endif
 
 
 /*******Part1:Call Back Function implement*******/

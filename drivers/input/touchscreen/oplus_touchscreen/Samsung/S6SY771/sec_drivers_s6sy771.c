@@ -31,6 +31,7 @@ static DEFINE_MUTEX(sec_mtx_lock);
 
 /****************** Start of Log Tag Declear and level define*******************************/
 #define TPD_DEVICE "sec-s6sy771"
+#ifdef CONFIG_DEBUG_KERNEL
 #define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
 #define TPD_DEBUG(a, arg...)\
     do{\
@@ -49,6 +50,12 @@ static DEFINE_MUTEX(sec_mtx_lock);
         if (tp_debug)\
             printk(a, ##arg);\
     }while(0)
+#else
+#define TPD_INFO(a, arg...)   do {} while(0)
+#define TPD_DEBUG(a, arg...)  do {} while(0)
+#define TPD_DETAIL(a, arg...) do {} while(0)
+#define TPD_DEBUG_NTAG(a, arg...) do {} while(0)
+#endif
 /******************** End of Log Tag Declear and level define*********************************/
 
 /*************************** start of function delcare****************************************/

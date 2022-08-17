@@ -7,6 +7,7 @@
 
 /****************************PART1:Log TAG****************************/
 #define TPD_DEVICE "Goodix-TOOL"
+#ifdef CONFIG_DEBUG_KERNEL
 #define TPD_INFO(fmt, arg...)        pr_err(TPD_DEVICE ": " fmt, ##arg)
 #define TPD_DEBUG(fmt, arg...)       do{\
     if (tp_debug)\
@@ -30,6 +31,11 @@
         pr_err("\n");\
     }\
 }while(0)
+#else
+#define TPD_INFO(fmt, arg...)  do {} while(0)
+#define TPD_DEBUG(fmt, arg...) do {} while(0)
+#define TPD_DEBUG_ARRAY(array, num) do {} while(0)
+#endif
 
 #define GOODIX_TOOLS_NAME        "gtp_tools"
 #define GOODIX_TS_IOC_MAGIC      'G'

@@ -46,6 +46,7 @@
 /*******Part0:LOG TAG Declear************************/
 #define TPD_PRINT_POINT_NUM 150
 #define TPD_DEVICE "touchpanel"
+#ifdef CONFIG_DEBUG_KERNEL
 #define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
 #define TPD_DEBUG(a, arg...)\
     do{\
@@ -66,6 +67,12 @@
             count = 0;\
         }\
     }while(0)
+#else
+#define TPD_INFO(a, arg...)   do {} while(0)
+#define TPD_DEBUG(a, arg...)  do {} while(0)
+#define TPD_DETAIL(a, arg...) do {} while(0)
+#define TPD_SPECIFIC_PRINT(count, a, arg...) do {} while(0)
+#endif
 
 /*******Part1:Global variables Area********************/
 unsigned int tp_debug = 0;

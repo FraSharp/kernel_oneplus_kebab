@@ -38,6 +38,7 @@ static int checkCMD(struct chip_data_s3706 *chip_info, int retry_time);
 /*******Part0:LOG TAG Declear********************/
 
 #define TPD_DEVICE "synaptics-s3706"
+#ifdef CONFIG_DEBUG_KERNEL
 #define TPD_INFO(a, arg...)  pr_err("[TP]"TPD_DEVICE ": " a, ##arg)
 #define TPD_DEBUG(a, arg...)\
         do {\
@@ -59,7 +60,12 @@ static int checkCMD(struct chip_data_s3706 *chip_info, int retry_time);
                         printk(a, ##arg);\
                 }\
         }while(0)
-
+#else
+#define TPD_INFO(a, arg...)   do {} while(0)
+#define TPD_DEBUG(a, arg...)  do {} while(0)
+#define TPD_DETAIL(a, arg...) do {} while(0)
+#define TPD_DEBUG_NTAG(a, arg...) do {} while(0)
+#endif
 /*******Part1:Call Back Function implement*******/
 
 static int synaptics_get_touch_points(void *chip_data, struct point_info *points, int max_num)
