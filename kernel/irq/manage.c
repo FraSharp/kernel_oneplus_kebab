@@ -1300,10 +1300,10 @@ static void affine_one_perf_thread(struct irqaction *action)
 	if (action->flags & IRQF_PERF_AFFINE) {
 		mask = cpu_perf_mask;
 		action->thread->pc_flags |= PC_PERF_AFFINE;
-	} else {
+	} else if (action->flags & IRQF_PRIME_AFFINE) {
 		mask = cpu_prime_mask;
 		action->thread->pc_flags |= PC_PRIME_AFFINE;
-	} else if (action->flags & IRQF_HP_AFFINE) {
+	} else {
 		mask = cpu_hp_mask;
 		action->thread->pc_flags |= PC_HP_AFFINE;
 	}
