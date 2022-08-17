@@ -73,6 +73,11 @@
 #define ACCL_TYPE(addr)			((addr >> 16) & 0xF)
 #define NR_ACCL_TYPES			3
 
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_info_ratelimited
+#define pr_info_ratelimited(fmt, ...) { }
+#endif
+
 static const char * const accl_str[] = {
 	"", "", "", "CLK", "VREG", "BUS",
 };
