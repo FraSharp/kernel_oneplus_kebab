@@ -131,12 +131,16 @@ MODULE_PARM_DESC(sy6970_chg_dbg_enable, "debug charger sy6970");
 
 #ifdef chg_err
 #undef chg_err
+# ifdef CONFIG_DEBUG_KERNEL
 #define chg_err(fmt, ...) \
 	if (sy6970_chg_dbg_enable & SY6970_ERR) { \
 		printk(KERN_ERR "[OPLUS_CHG][%s]"fmt, __func__, ##__VA_ARGS__); \
 	} else { \
 		printk(KERN_NOTICE "[OPLUS_CHG][%s]"fmt, __func__, ##__VA_ARGS__); \
 	}
+# else
+# define chg_err(fmt, ...) do {} while(0)
+# endif
 #endif
 
 enum charger_type {

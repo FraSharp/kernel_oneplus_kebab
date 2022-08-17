@@ -81,6 +81,7 @@ static int op20a_init_buf[2][5] = {
 };
 #endif
 
+#ifdef CONFIG_DEBUG_KERNEL
 #define chg_debug(fmt, ...)                                                    \
 	printk(KERN_NOTICE "[WLCHG][%s]" fmt, __func__, ##__VA_ARGS__)
 
@@ -89,6 +90,11 @@ static int op20a_init_buf[2][5] = {
 
 #define chg_info(fmt, ...)                                                     \
 	printk(KERN_INFO "[WLCHG][%s]" fmt, __func__, ##__VA_ARGS__)
+#else
+#define chg_debug(fmt, ...) do {} while(0)
+#define chg_err(fmt, ...)   do {} while(0)
+#define chg_info(fmt, ...)  do {} while(0)
+#endif
 
 static DEFINE_MUTEX(chargepump_i2c_access);
 

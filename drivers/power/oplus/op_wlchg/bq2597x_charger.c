@@ -46,6 +46,7 @@
 #define BQ25970_ROLE_SLAVE 1
 #define BQ25970_ROLE_MASTER 2
 
+#ifdef CONFIG_DEBUG_KERNEL
 #define chg_debug(fmt, ...)                                                    \
 	printk(KERN_NOTICE "[WLCHG][%s]" fmt, __func__, ##__VA_ARGS__)
 
@@ -54,6 +55,11 @@
 
 #define chg_info(fmt, ...)                                                     \
 	printk(KERN_INFO "[WLCHG][%s]" fmt, __func__, ##__VA_ARGS__)
+#else
+#define chg_debug(fmt, ...) do {} while(0)
+#define chg_err(fmt, ...)   do {} while(0)
+#define chg_info(fmt, ...)  do {} while(0)
+#endif
 
 enum {
 	BQ25970_STDALONE,
@@ -128,6 +134,7 @@ static int bq2597x_mode_data[] = {
 #define VBAT_REG_STATUS_MASK (1 << VBAT_REG_STATUS_SHIFT)
 #define IBAT_REG_STATUS_MASK (1 << VBAT_REG_STATUS_SHIFT)
 
+#ifdef CONFIG_DEBUG_KERNEL
 #define bq_err(fmt, ...)                                                       \
 	do {                                                                   \
 		if (bq->mode == BQ25970_ROLE_MASTER)                           \
@@ -166,6 +173,11 @@ static int bq2597x_mode_data[] = {
 			printk(KERN_DEBUG "[bq2597x-STANDALONE]:%s:" fmt,      \
 			       __func__, ##__VA_ARGS__);                       \
 	} while (0)
+#else
+#define bq_err(fmt, ...)  do {} while(0)
+#define bq_info(fmt, ...) do {} while(0)
+#define bq_dbg(fmt, ...)  do {} while(0)
+#endif
 
 /*end*/
 

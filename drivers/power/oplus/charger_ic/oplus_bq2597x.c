@@ -114,6 +114,7 @@ static int bq2597x_mode_data[] = { [BQ25970_STDALONE] = BQ25970_STDALONE,
 
 #define VBAT_REG_STATUS_MASK		(1 << VBAT_REG_STATUS_SHIFT)
 #define IBAT_REG_STATUS_MASK		(1 << VBAT_REG_STATUS_SHIFT)
+#ifdef CONFIG_DEBUG_KERNEL
 #define chg_err(fmt, ...) \
         printk(KERN_ERR "[OPLUS_CHG][%s]"fmt, __func__, ##__VA_ARGS__)
 
@@ -146,6 +147,12 @@ do {											\
 	else										\
 		printk(KERN_DEBUG "[bq2597x-STANDALONE]:%s:" fmt, __func__, ##__VA_ARGS__);\
 } while (0);
+#else
+#define chg_err(fmt, ...) do {} while(0)
+#define bq_err(fmt, ...)  do {} while(0)
+#define bq_info(fmt, ...) do {} while(0)
+#define bq_dbg(fmt, ...)  do {} while(0)
+#endif
 
 /*end*/
 

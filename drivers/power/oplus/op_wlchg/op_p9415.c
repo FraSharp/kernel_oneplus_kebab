@@ -34,6 +34,7 @@
 #include "../oplus_wlchg_policy.h"
 #include "../charger_ic/oplus_battery_msm8250.h"
 
+#ifdef CONFIG_DEBUG_KERNEL
 #define chg_debug(fmt, ...)                                                    \
 	printk(KERN_NOTICE "[WLCHG][%s]" fmt, __func__, ##__VA_ARGS__)
 
@@ -42,6 +43,11 @@
 
 #define chg_info(fmt, ...)                                                     \
 	printk(KERN_INFO "[WLCHG][%s]" fmt, __func__, ##__VA_ARGS__)
+#else
+#define chg_debug(fmt, ...) do {} while(0)
+#define chg_err(fmt, ...)   do {} while(0)
+#define chg_info(fmt, ...)  do {} while(0)
+#endif
 
 extern struct smb_charger *normal_charger;
 
