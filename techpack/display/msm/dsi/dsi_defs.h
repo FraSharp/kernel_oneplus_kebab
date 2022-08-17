@@ -44,6 +44,7 @@
 	for (index = 0; (index < (display)->ctrl_count) &&\
 			(index < MAX_DSI_CTRLS_PER_DISPLAY); index++)
 
+#ifdef CONFIG_DEBUG_KERNEL
 #define DSI_WARN(fmt, ...)	DRM_WARN("[msm-dsi-warn]: "fmt, ##__VA_ARGS__)
 #define DSI_ERR(fmt, ...)	DRM_DEV_ERROR(NULL, "[msm-dsi-error]: " fmt, \
 								##__VA_ARGS__)
@@ -51,6 +52,12 @@
 								##__VA_ARGS__)
 #define DSI_DEBUG(fmt, ...)	DRM_DEV_DEBUG(NULL, "[msm-dsi-debug]: "fmt, \
 								##__VA_ARGS__)
+#else
+#define DSI_DEBUG(fmt, ...) do {} while(0)
+#define DSI_WARN(fmt, ...)  do {} while(0)
+#define DSI_INFO(fmt, ...)  do {} while(0)
+#define DSI_ERR(fmt, ...)   do {} while(0)
+#endif
 
 #ifdef OPLUS_BUG_STABILITY
 #include <soc/oplus/system/oplus_mm_kevent_fb.h>
