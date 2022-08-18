@@ -694,15 +694,11 @@ static int ist8801_enable_irq(bool enable)
 	}
 
 	if (enable) {
-		if (g_ist8801_data->irq != 1) {
-			printk("hall_ist8801_up.c: TRI_KEY_DBG: ist8801_enable_irq: g_ist8801_data->irq !1 | act_val(%d)", g_ist8801_data->irq);
-			irq_data = irq_get_irq_data(g_ist8801_data->irq);
-			if (irq_data && irqd_irq_disabled(irq_data)) {
-				printk("hall_ist8801_up.c: TRI_KEY_DBG: ist8801_enable_irq: enabling irq (g_ist8801_data->irq)");
-				enable_irq(g_ist8801_data->irq);
-			}
+		irq_data = irq_get_irq_data(g_ist8801_data->irq);
+		if (irq_data && irqd_irq_disabled(irq_data)) {
+			printk("hall_ist8801_up.c: TRI_KEY_DBG: ist8801_enable_irq: enabling irq (g_ist8801_data->irq)");
+			enable_irq(g_ist8801_data->irq);
 		}
-		printk("hall_ist8801_up.c: TRI_KEY_DBG: ist8801_enable_irq: g_ist8801_data->irq 1 | act_val(%d)", g_ist8801_data->irq);
 	} else {
 		printk("hall_ist8801_up.c: TRI_KEY_DBG: ist8801_enable_irq: disabling irq (g_ist8801_data->irq)");
 		disable_irq_nosync(g_ist8801_data->irq);
