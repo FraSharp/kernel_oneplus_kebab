@@ -582,8 +582,6 @@ static void complete_commit(struct msm_commit *c)
 
 static void _msm_drm_commit_work_cb(struct kthread_work *work)
 {
-	struct msm_commit *commit = NULL;
-
 	if (!work) {
 		DRM_ERROR("%s: Invalid commit work data!\n", __func__);
 		return;
