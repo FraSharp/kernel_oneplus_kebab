@@ -66,6 +66,15 @@
 #define BATT_FULL_ERROR 2
 #define XBL_AUTH_DEBUG
 
+#ifdef CONFIG_DEBUG_KERNEL
+#undef printk
+#define printk(fmt, ...) pr_info(fmt, ...)
+#else
+#undef printk
+#define printk(fmt, ...) do {} while(0)
+#endif
+
+
 static struct chip_bq27541 *gauge_ic = NULL;
 static struct chip_bq27541 *sub_gauge_ic = NULL;
 static DEFINE_MUTEX(bq28z610_alt_manufacturer_access);

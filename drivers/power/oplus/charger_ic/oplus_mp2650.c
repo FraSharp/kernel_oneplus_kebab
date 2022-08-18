@@ -1264,7 +1264,7 @@ int mp2650_registers_read_full(void)
 		chg_err("Couldn't read STAT_C rc = %d\n", rc);
 		return 0;
 	}
-	
+
 	reg_full = ((reg_full & REG13_MP2650_CHARGING_STATUS_MASK) == REG13_MP2650_CHARGING_STATUS_CHARGE_TERMINATION) ? 1 : 0;
 	if (reg_full) {
 		chg_err("the mp2650 is full");
@@ -2036,6 +2036,7 @@ void mp2650_dump_registers(void)
 			chg_err("Couldn't  read 0x30 rc = %d\n", rc);
 		}
 
+#if 0
         printk(KERN_ERR "mp2650_dump_reg: [0x%02x, 0x%02x, 0x%02x, 0x%02x], [0x%02x, 0x%02x, 0x%02x, 0x%02x], "
 		"[0x%02x, 0x%02x, 0x%02x, 0x%02x], [0x%02x, 0x%02x, 0x%02x, 0x%02x], "
 		"[0x%02x, 0x%02x, 0x%02x, 0x%02x], [0x%02x, 0x%02x, 0x%02x, 0x%02x], "
@@ -2051,6 +2052,7 @@ void mp2650_dump_registers(void)
 		val_buf[28], val_buf[29], val_buf[30], val_buf[31],
 		val_buf[32], val_buf[33], val_buf[34],
 		val_buf[35], val_buf[36], val_buf[37], val_buf[38]);
+#endif
     }
     dump_count++;
 }
