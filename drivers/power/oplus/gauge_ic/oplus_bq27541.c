@@ -4250,7 +4250,9 @@ static int gauge_reg_dump(void) {
 			}
 		}
 	}
+#if 0
 	printk(KERN_ERR "[OPLUS_CHG] gauge regs: %s device_type:%d\n", buf, gauge_ic->device_type);
+#endif
 	return 0;
 }
 
