@@ -3333,8 +3333,10 @@ static int afe_send_hw_delay(u16 port_id, u32 rate)
 		       __func__, port_id, ret);
 
 fail_cmd:
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("%s: port_id 0x%x rate %u delay_usec %d status %d\n",
 	__func__, port_id, rate, delay_entry.delay_usec, ret);
+#endif
 	return ret;
 }
 
@@ -3357,8 +3359,10 @@ static struct cal_block_data *afe_find_cal_topo_id_by_port(
 		/* Skip cal_block if it is already marked stale */
 		if (cal_utils_is_cal_stale(cal_block))
 			continue;
+#ifdef CONFIG_DEBUG_KERNEL
 		pr_info("%s: port id: 0x%x, dev_acdb_id: %d\n", __func__,
 			 port_id, this_afe.dev_acdb_id[afe_port_index]);
+#endif
 		path = ((afe_get_port_type(port_id) ==
 			MSM_AFE_PORT_TYPE_TX)?(TX_DEVICE):(RX_DEVICE));
 		afe_top =
@@ -3367,16 +3371,20 @@ static struct cal_block_data *afe_find_cal_topo_id_by_port(
 			if (this_afe.dev_acdb_id[afe_port_index] > 0) {
 				if (afe_top->acdb_id ==
 				    this_afe.dev_acdb_id[afe_port_index]) {
+#ifdef CONFIG_DEBUG_KERNEL
 					pr_info("%s: top_id:%x acdb_id:%d afe_port_id:0x%x\n",
 						 __func__, afe_top->topology,
 						 afe_top->acdb_id,
 						 q6audio_get_port_id(port_id));
+#endif
 					return cal_block;
 				}
 			} else {
+#ifdef CONFIG_DEBUG_KERNEL
 				pr_info("%s: top_id:%x acdb_id:%d afe_port:0x%x\n",
 				 __func__, afe_top->topology, afe_top->acdb_id,
 				 q6audio_get_port_id(port_id));
+#endif
 				return cal_block;
 			}
 		}
@@ -3431,9 +3439,11 @@ static int afe_get_cal_topology_id(u16 port_id, u32 *topology_id,
 	*topology_id = (u32)afe_top_info->topology;
 	cal_utils_mark_cal_used(cal_block);
 
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("%s: port_id = 0x%x acdb_id = %d topology_id = 0x%x cal_type_index=%d ret=%d\n",
 		__func__, port_id, afe_top_info->acdb_id,
 		afe_top_info->topology, cal_type_index, ret);
+#endif
 unlock:
 	mutex_unlock(&this_afe.cal_data[cal_type_index]->lock);
 	return ret;
@@ -3764,7 +3774,9 @@ static int send_afe_cal_type(int cal_index, int port_id)
 	int ret;
 	int afe_port_index = q6audio_get_port_index(port_id);
 
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("%s: cal_index is %d\n", __func__, cal_index);
+#endif
 
 	if (this_afe.cal_data[cal_index] == NULL) {
 		pr_warn("%s: cal_index %d not allocated!\n",
@@ -3781,9 +3793,11 @@ static int send_afe_cal_type(int cal_index, int port_id)
 	}
 
 	mutex_lock(&this_afe.cal_data[cal_index]->lock);
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("%s: dev_acdb_id[%d] is %d\n",
 			__func__, afe_port_index,
 			this_afe.dev_acdb_id[afe_port_index]);
+#endif
 	if (((cal_index == AFE_COMMON_RX_CAL) ||
 	     (cal_index == AFE_COMMON_TX_CAL) ||
 	     (cal_index == AFE_LSM_TX_CAL)) &&
@@ -3799,7 +3813,9 @@ static int send_afe_cal_type(int cal_index, int port_id)
 		goto unlock;
 	}
 
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("%s: Sending cal_index cal %d\n", __func__, cal_index);
+#endif
 
 	ret = remap_cal_data(cal_block, cal_index);
 	if (ret) {
@@ -3825,7 +3841,9 @@ void afe_send_cal(u16 port_id)
 {
 	int ret;
 
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_debug("%s: port_id=0x%x\n", __func__, port_id);
+#endif
 
 	if (afe_get_port_type(port_id) == MSM_AFE_PORT_TYPE_TX) {
 		afe_send_cal_spkr_prot_tx(port_id);

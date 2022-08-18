@@ -17,6 +17,11 @@
 #define TFA98XX_CURRENTSENSE4_CTRL_CLKGATECFOFF (1<<2)
 #define TFA98XX_CURRENTSENSE4 0x49
 
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_info
+#define pr_info(fmt, ...) do {} while(0)
+#endif
+
 /***********************************************************************************/
 /* GLOBAL (Defaults)                                                               */
 /***********************************************************************************/

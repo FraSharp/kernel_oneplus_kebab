@@ -254,7 +254,9 @@ int adm_set_auddet_enable_param(int port_id, uint8_t val)
 	int idx;
 	int port_idx = adm_validate_and_get_port_index(port_id);
 
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("%s, portid %d, enable %d\n", __func__, port_id, val);
+#endif
 
 	memset(&param_hdr, 0, sizeof(param_hdr));
 	param_hdr.module_id = MUTE_DETECT_MODULE_ID;

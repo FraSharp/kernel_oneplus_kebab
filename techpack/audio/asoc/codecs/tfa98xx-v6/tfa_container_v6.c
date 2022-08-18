@@ -17,6 +17,11 @@
 #define MODULE_BIQUADFILTERBANK 2
 #define BIQUAD_COEFF_SIZE       6
 
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_info
+#define pr_info(fmt, ...) do {} while(0)
+#endif
+
 /* module globals */
 static uint8_t gslave_address = 0; /* This is used to SET the slave with the --slave option */
 

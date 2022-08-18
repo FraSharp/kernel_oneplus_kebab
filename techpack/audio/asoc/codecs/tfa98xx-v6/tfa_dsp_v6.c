@@ -82,6 +82,11 @@ void tfa9894_ops(struct tfa_device_ops *ops);
 bool g_speaker_resistance_fail = false;
 #endif /* OPLUS_ARCH_EXTENDS */
 
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_info
+#define pr_info(fmt, ...) do {} while(0)
+#endif
+
 int tfa_get_calibration_info_v6(struct tfa_device *tfa, int channel)
 {
 	return tfa->mohm[channel];

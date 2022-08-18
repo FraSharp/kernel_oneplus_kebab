@@ -82,6 +82,11 @@ extern bool g_speaker_resistance_fail;
 #define TF98XX_MAX_DSP_START_TRY_COUNT	10
 #define TFADSP_FLAG_CALIBRATE_DONE 1
 
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_info
+#define pr_info(fmt, ...) do {} while(0)
+#endif
+
 /* data accessible by all instances */
 static struct kmem_cache *tfa98xx_cache = NULL;  /* Memory pool used for DSP messages */
 /* Mutex protected data */
