@@ -72,6 +72,12 @@
 
 #define AW8697_MAX_FIRMWARE_LOAD_CNT 20
 #define OP_AW_DEBUG
+
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_info
+#define pr_info(fmt, ...) do {} while(0)
+#endif
+
 //#define AISCAN_CTRL
 /******************************************************
  *
