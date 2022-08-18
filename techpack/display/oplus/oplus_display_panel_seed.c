@@ -14,6 +14,11 @@
 #include "oplus_dsi_support.h"
 #include "oplus_display_private_api.h"
 
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_err
+#define pr_err(fmt, ...) do {} while(0)
+#endif
+
 extern unsigned int is_project(int project);
 extern bool oplus_dc_v2_on;
 static bool seed_mode_flag = false;
