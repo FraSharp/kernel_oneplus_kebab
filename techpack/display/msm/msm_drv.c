@@ -1120,6 +1120,8 @@ static void msm_irq_preinstall(struct drm_device *dev)
 {
 	struct msm_drm_private *priv = dev->dev_private;
 	struct msm_kms *kms = priv->kms;
+	struct sde_kms *sde_kms = to_sde_kms(kms);
+
 	BUG_ON(!kms);
 	kms->funcs->irq_preinstall(kms);
 	priv->pm_irq_req.type = PM_QOS_REQ_AFFINE_IRQ;
