@@ -760,6 +760,10 @@ retry:
 
 	WARN_ON(drm_atomic_helper_swap_state(state, false) < 0);
 
+	if (!atomic_cmpxchg_acquire(&priv->pm_req_set, 1, 0))
+		pm_qos_update_request(&priv->pm_irq_req, 100);
+	mod_delayed_work(system_unbound_wq, &priv->pm_unreq_dwork, HZ / 10);
+
 	/*
 	 * Provide the driver a chance to prepare for output fences. This is
 	 * done after the point of no return, but before asynchronous commits
