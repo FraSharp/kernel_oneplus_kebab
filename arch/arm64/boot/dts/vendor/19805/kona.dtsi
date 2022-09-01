@@ -352,7 +352,7 @@
 	};
 
 	chosen {
-		bootargs = "rcupdate.rcu_expedited=1 rcu_nocbs=0-7 kasan_multi_shot";
+		bootargs = "quiet rcupdate.rcu_expedited=1 rcu_nocbs=4-7 cgroup.memory=nokmem,nosocket kpti=off noirqdebug nosoftlockup mce=ignore_ce kasan_multi_shot";
 	};
 
 	firmware: firmware {
