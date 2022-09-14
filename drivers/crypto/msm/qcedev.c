@@ -2054,8 +2054,10 @@ static inline long qcedev_ioctl(struct file *file,
 					goto exit_free_qcedev_areq;
 				}
 				map_buf.buf_vaddr[i] = vaddr;
+#ifdef CONFIG_DEBUG_KERNEL
 				pr_info("%s: info: vaddr = %llx\n",
 					__func__, vaddr);
+#endif
 			}
 
 			if (copy_to_user((void __user *)arg, &map_buf,
