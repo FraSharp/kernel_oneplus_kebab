@@ -1065,6 +1065,10 @@ EXPORT_SYMBOL(pagevec_lookup_range_nr_tag);
  */
 void __init swap_setup(void)
 {
+#ifdef CONFIG_ANDROID
+	/* Tweak for Android devices using zram */
+	page_cluster = 0;
+#else
 	unsigned long megs = totalram_pages() >> (20 - PAGE_SHIFT);
 
 	/* Use a smaller cluster for small-memory machines */
@@ -1072,6 +1076,7 @@ void __init swap_setup(void)
 		page_cluster = 2;
 	else
 		page_cluster = 3;
+#endif
 	/*
 	 * Right now other parts of the system means that we
 	 * _really_ don't want to cluster much more
