@@ -17,7 +17,7 @@
  * wakeup-preemption), since its likely going to consume data we
  * touched, increases cache locality.
  */
-#define SCHED_FEAT_NEXT_BUDDY 0
+#define SCHED_FEAT_NEXT_BUDDY 1
 
 /*
  * Prefer to schedule the task that ran last (when we did
@@ -44,7 +44,7 @@
 /*
  * Decrement CPU capacity based on time not spent running tasks
  */
-#define SCHED_FEAT_NONTASK_CAPACITY 1
+#define SCHED_FEAT_NONTASK_CAPACITY 0
 
 /*
  * Queue remote wakeups on the target CPU and process them
@@ -56,7 +56,7 @@
  * When doing wakeups, attempt to limit superfluous scans of the LLC domain.
  */
 #define SCHED_FEAT_SIS_AVG_CPU 0
-#define SCHED_FEAT_SIS_PROP 1
+#define SCHED_FEAT_SIS_PROP 0
 
 /*
  * Issue a WARN when we do multiple update_rq_clock() calls
