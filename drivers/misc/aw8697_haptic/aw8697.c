@@ -8171,7 +8171,7 @@ static ssize_t aw8697_duration_store(struct device *dev,
         return rc;
 
 #ifdef OPLUS_FEATURE_CHG_BASIC
-    pr_err("%s: value=%d\n", __FUNCTION__, val);
+    pr_debug("%s: value=%d\n", __FUNCTION__, val);
 #endif
     /* setting 0 on duration is NOP for now */
     if (val <= 0)
@@ -8257,7 +8257,7 @@ static ssize_t aw8697_activate_store(struct device *dev,
     if (val != 0 && val != 1)
         return count;
 
-    pr_err("%s: value=%d\n", __FUNCTION__, val);
+    pr_debug("%s: value=%d\n", __FUNCTION__, val);
     //vincent
     if (0 == val)
     {
@@ -8544,7 +8544,7 @@ static ssize_t aw8697_vmax_store(struct device *dev,
     if (rc < 0)
         return rc;
 
-    pr_err("%s: value=%d\n", __FUNCTION__, val);
+    pr_debug("%s: value=%d\n", __FUNCTION__, val);
 
     mutex_lock(&aw8697->lock);
 #ifdef OPLUS_FEATURE_CHG_BASIC
@@ -8619,7 +8619,7 @@ static ssize_t aw8697_gain_store(struct device *dev,
     if (rc < 0)
         return rc;
 
-    pr_err("%s: value=%d\n", __FUNCTION__, val);
+    pr_debug("%s: value=%d\n", __FUNCTION__, val);
 
     mutex_lock(&aw8697->lock);
     aw8697->gain = val;
