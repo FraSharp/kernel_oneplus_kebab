@@ -2001,7 +2001,9 @@ static void handle_ebd(enum hal_command_response cmd, void *data)
 		mutex_lock(&inst->bufq[OUTPUT_PORT].lock);
 		vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
 		mutex_unlock(&inst->bufq[OUTPUT_PORT].lock);
+#ifdef CONFIG_DEBUG_FS
 		msm_vidc_debugfs_update(inst, MSM_VIDC_DEBUGFS_EVENT_EBD);
+#endif
 	}
 exit:
 	put_inst(inst);
@@ -2328,7 +2330,9 @@ static void handle_fbd(enum hal_command_response cmd, void *data)
 		mutex_lock(&inst->bufq[CAPTURE_PORT].lock);
 		vb2_buffer_done(vb, VB2_BUF_STATE_DONE);
 		mutex_unlock(&inst->bufq[CAPTURE_PORT].lock);
+#ifdef CONFIG_DEBUG_FS
 		msm_vidc_debugfs_update(inst, MSM_VIDC_DEBUGFS_EVENT_FBD);
+#endif
 	}
 
 err_handle_fbd:
@@ -2601,9 +2605,11 @@ static bool is_thermal_permissible(struct msm_vidc_core *core)
 		return true;
 
 	if (!msm_vidc_thermal_mitigation_disabled) {
+#ifdef CONFIG_DEBUG_FS
 		dprintk(VIDC_DBG,
 			"Thermal mitigation not enabled. debugfs %d\n",
 			msm_vidc_thermal_mitigation_disabled);
+#endif
 		return true;
 	}
 
@@ -3860,7 +3866,9 @@ static void log_frame(struct msm_vidc_inst *inst, struct vidc_frame_data *data,
 				"Sending etb (%pa) to hal: filled: %d, ts: %lld, flags = %#x\n",
 				&data->device_addr, data->filled_len,
 				data->timestamp, data->flags);
+#ifdef CONFIG_DEBUG_FS
 		msm_vidc_debugfs_update(inst, MSM_VIDC_DEBUGFS_EVENT_ETB);
+#endif
 
 		if (msm_vidc_bitrate_clock_scaling &&
 			inst->session_type == MSM_VIDC_DECODER &&
@@ -3874,7 +3882,9 @@ static void log_frame(struct msm_vidc_inst *inst, struct vidc_frame_data *data,
 				"Sending ftb (%pa) to hal: size: %d, ts: %lld, flags = %#x\n",
 				&data->device_addr, data->alloc_len,
 				data->timestamp, data->flags);
+#ifdef CONFIG_DEBUG_FS
 		msm_vidc_debugfs_update(inst, MSM_VIDC_DEBUGFS_EVENT_FTB);
+#endif
 	}
 
 	msm_dcvs_check_and_scale_clocks(inst,
@@ -4837,10 +4847,12 @@ int msm_comm_flush(struct msm_vidc_inst *inst, u32 flags)
 
 			mutex_lock(lock);
 			vb2_buffer_done(temp->vb, VB2_BUF_STATE_DONE);
+#ifdef CONFIG_DEBUG_FS
 			msm_vidc_debugfs_update(inst,
 				type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ?
 					MSM_VIDC_DEBUGFS_EVENT_FBD :
 					MSM_VIDC_DEBUGFS_EVENT_EBD);
+#endif
 			list_del(&temp->list);
 			mutex_unlock(lock);
 
