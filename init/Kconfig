@@ -1262,6 +1262,13 @@ config STUNE_ASSIST
 
 	  If unsure, say N.
 
+config SCHED_TUNE_DUMMY
+	bool "Create dummy SCHEDTUNE nodes"
+	depends on SMP
+	depends on !SCHED_TUNE && !CGROUP_SCHEDTUNE
+	help
+	  Create dummy SCHEDTUNE nodes.
+
 config CPUSET_ASSIST
 	bool "Cpuset configuration helper"
 	depends on CPUSETS
