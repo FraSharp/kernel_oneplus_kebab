@@ -196,7 +196,9 @@ int iris_operate_conf(struct msm_iris_operate_value *argp)
 	display_type = (argp->type >> 16) & 0xff;
 	pcfg = &gcfg[gcfg_index];
 	if (pcfg == NULL || pcfg->valid < 1) {
+#ifdef CONFIG_DEBUG_KERNEL
 		DSI_ERR("Target display does not exist!");
+#endif
 		return -EPERM;
 	}
 

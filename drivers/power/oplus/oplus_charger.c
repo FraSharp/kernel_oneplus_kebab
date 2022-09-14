@@ -525,7 +525,9 @@ static void oplus_midas_chg_data_init(void)
 	if (oplus_vooc_get_allow_reading() == true) {
 		ret = oplus_gauge_get_passedchg(&val);
 		if (ret) {
+#ifdef CONFIG_DEBUG_KERNEL
 			pr_err("%s: get passedchg error %d\n", __FUNCTION__, val);
+#endif
 			midas_chg.cali_passed_chg = midas_chg.passed_chg = 0;
 		} else {
 			midas_chg.cali_passed_chg = midas_chg.passed_chg = val;
@@ -555,7 +557,9 @@ static void oplus_midas_chg_processing(struct oplus_chg_chip *chip)
 	if(oplus_vooc_get_allow_reading() == true) {
 		ret = oplus_gauge_get_passedchg(&val);
 		if (ret) {
+#ifdef CONFIG_DEBUG_KERNEL
 			pr_err("%s: get passedchg error %d\n", __FUNCTION__, val);
+#endif
 			return;
 		}
 	} else {
@@ -711,7 +715,9 @@ int oplus_battery_get_property(struct power_supply *psy,
 			val->intval = chip->batt_fcc * 1000;
 			break;
 		default:
+#ifdef CONFIG_DEBUG_KERNEL
 			pr_err("get prop %d is not supported in batt\n", psp);
+#endif
 			ret = -EINVAL;
 			break;
 	}

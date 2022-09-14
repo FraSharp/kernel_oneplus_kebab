@@ -1111,7 +1111,9 @@ int oplus_dsi_update_dynamic_osc_clock(void)
 	}
 
 	if (!display->panel->oplus_priv.is_osc_support) {
+#ifdef CONFIG_DEBUG_KERNEL
 		pr_err("not support osc\n");
+#endif
 		return 0;
 	}
 

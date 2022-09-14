@@ -30,6 +30,11 @@
 
 #define ALIGN4(s) ((sizeof(s) + 3)&(~0x3))
 
+#ifndef CONFIG_DEBUG_KERNEL
+#undef pr_info
+#define pr_info(fmt, ...) do {} while(0)
+#endif
+
 struct msm_rpmh_master_stats {
 	uint32_t version_id;
 	uint32_t counts;

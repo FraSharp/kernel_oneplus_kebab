@@ -169,7 +169,9 @@ int iris_operate_tool(struct msm_iris_operate_value *argp)
 	display_type = (argp->type >> 16) & 0xff;
 	pcfg = iris_get_cfg_by_index(display_type);
 	if (pcfg == NULL || pcfg->valid < PARAM_PARSED) {
+#ifdef CONFIG_DEBUG_KERNEL
 		IRIS_LOGE("Target display does not exist!");
+#endif
 		return -EPERM;
 	}
 
@@ -1182,7 +1184,9 @@ int iris_operate_conf(struct msm_iris_operate_value *argp)
 		if (child_type == IRIS_WAIT_VSYNC || child_type == IRIS_CHIP_VERSION)
 			IRIS_LOGV("Allow type 0x%04x(%u) for Soft Iris", child_type, child_type);
 		else {
+#ifdef CONFIG_DEBUG_KERNEL
 			IRIS_LOGE("Target display does not exist!");
+#endif
 			return -EPERM;
 		}
 	}

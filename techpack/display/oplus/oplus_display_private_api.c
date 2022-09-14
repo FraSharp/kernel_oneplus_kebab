@@ -2349,7 +2349,9 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 		blank = MSM_DRM_BLANK_UNBLANK;
 		notifier_data.data = &blank;
 		notifier_data.id = 0;
+#ifdef CONFIG_DEBUG_KERNEL
 		pr_err("[%s:%d] SDE_MODE_DPMS_ON\n", __func__, __LINE__);
+#endif
 		msm_drm_notifier_call_chain(MSM_DRM_EARLY_EVENT_BLANK,
 					   &notifier_data);
 		if ((display->panel->power_mode == SDE_MODE_DPMS_LP1) ||

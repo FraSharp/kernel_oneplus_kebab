@@ -813,7 +813,9 @@ static void log_buf_work_fn(struct work_struct *work)
 
 	addr = (char **)kallsyms_lookup_name("log_buf");
 	if (!addr) {
+#ifdef CONFIG_DEBUG_KERNEL
 		dev_err(wdog_data->dev, "log_buf symbol not found\n");
+#endif
 		goto out;
 	}
 

@@ -1399,7 +1399,9 @@ void enable_nonboot_cpus(void)
 	if (cpumask_empty(frozen_cpus))
 		goto out;
 
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("Enabling non-boot CPUs ...\n");
+#endif
 
 	arch_enable_nonboot_cpus_begin();
 
@@ -1408,7 +1410,9 @@ void enable_nonboot_cpus(void)
 		error = _cpu_up(cpu, 1, CPUHP_ONLINE);
 		trace_suspend_resume(TPS("CPU_ON"), cpu, false);
 		if (!error) {
+#ifdef CONFIG_DEBUG_KERNEL
 			pr_info("CPU%d is up\n", cpu);
+#endif
 			cpu_device = get_cpu_device(cpu);
 			if (!cpu_device)
 				pr_err("%s: failed to get cpu%d device\n",

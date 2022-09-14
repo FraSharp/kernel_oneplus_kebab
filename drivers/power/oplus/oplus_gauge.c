@@ -676,7 +676,9 @@ int oplus_gauge_get_passedchg(int *val)
 	} else {
 		ret = g_gauge_chip->gauge_ops->get_passdchg(val);
 		if(ret) {
+#ifdef CONFIG_DEBUG_KERNEL
 			pr_err("%s: get passedchg error %d\n", __FUNCTION__, ret);
+#endif
 		}
 		return ret;
 	}

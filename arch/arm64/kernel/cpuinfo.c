@@ -333,7 +333,9 @@ static void cpuinfo_detect_icache_policy(struct cpuinfo_arm64 *info)
 		set_bit(ICACHEF_ALIASING, &__icache_flags);
 	}
 
+#ifdef CONFIG_DEBUG_KERNEL
 	pr_info("Detected %s I-cache on CPU%d\n", icache_policy_str[l1ip], cpu);
+#endif
 }
 
 static void __cpuinfo_store_cpu(struct cpuinfo_arm64 *info)

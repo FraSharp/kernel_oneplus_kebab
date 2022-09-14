@@ -275,6 +275,7 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 	}
 
 #ifdef OPLUS_BUG_STABILITY
+# ifdef CONFIG_DEBUG_KERNEL
 	if ((bl_lvl == 0 && panel->bl_config.bl_level != 0) ||
 	    (bl_lvl != 0 && panel->bl_config.bl_level == 0)){
 		pr_err("backlight level changed %d -> %d\n",
@@ -283,6 +284,7 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 		pr_err("aod backlight level changed %d -> %d\n",
 		      panel->bl_config.bl_level, bl_lvl);
 	}
+# endif
 
 	/* Add some delay to avoid screen flash */
 	if (panel->need_power_on_backlight && bl_lvl) {
