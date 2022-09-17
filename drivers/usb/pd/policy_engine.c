@@ -2153,11 +2153,15 @@ static int enable_vbus(struct usbpd *pd)
 			pd->vbus_enabled = true;
 		}
 	}
+
+/* broken */
+#if 0
 	ret = regulator_enable(pd->vbus);
 	if (ret)
 		usbpd_err(&pd->dev, "Unable to enable vbus (%d)\n", ret);
 	else
 		pd->vbus_enabled = true;
+#endif
 
 	count = 10;
 	/*
@@ -5207,7 +5211,12 @@ struct usbpd *usbpd_create(struct device *parent)
 
 	pd->pps_disabled = device_property_read_bool(parent,
 				"qcom,pps-disabled");
-#ifdef OPLUS_CUSTOM_OP_DEF
+
+/* broken
+ *
+ * #ifdef OPLUS_CUSTOM_OP_DEF
+ */
+#if 0
 	pd->probe_done = true;
 #endif
 	pd->current_pr = PR_NONE;
