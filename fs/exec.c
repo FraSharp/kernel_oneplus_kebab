@@ -77,7 +77,11 @@ int suid_dumpable = 0;
 static LIST_HEAD(formats);
 static DEFINE_RWLOCK(binfmt_lock);
 
-#define HWCOMPOSER_BIN_PREFIX "/vendor/bin/hw/vendor.qti.hardware.display.composer-service"
+#define QTIHWCOMPOSER_BIN_PREFIX "/vendor/bin/hw/vendor.qti.hardware.display.composer"
+#define QTIHW_BIN_PREFIX	 "/vendor/bin/hw/vendor.qti.hardware.display.allocator"
+#define HWCOMPOSER_BIN_PREFIX	 "/vendor/bin/hw/android.hardware.graphics.composer"
+#define SFLINGER_BIN_PREFIX	 "/system/bin/surfaceflinger"
+
 #define ZYGOTE32_BIN	"/system/bin/app_process32"
 #define ZYGOTE64_BIN	"/system/bin/app_process64"
 static atomic_t zygote32_pid;
@@ -1873,6 +1877,21 @@ static int __do_execve_file(int fd, struct filename *filename,
 					   HWCOMPOSER_BIN_PREFIX,
 					   strlen(HWCOMPOSER_BIN_PREFIX)))) {
 			current->flags |= PC_PRIME_AFFINE;
+			set_cpus_allowed_ptr(current, cpu_prime_mask);
+		} else if (unlikely(!strncmp(filename->name,
+					   QTIHWCOMPOSER_BIN_PREFIX,
+					   strlen(QTIHWCOMPOSER_BIN_PREFIX)))) {
+			current->pc_flags |= PC_PRIME_AFFINE;
+			set_cpus_allowed_ptr(current, cpu_prime_mask);
+		} else if (unlikely(!strncmp(filename->name,
+					   SFLINGER_BIN_PREFIX,
+					   strlen(SFLINGER_BIN_PREFIX)))) {
+			current->pc_flags |= PC_PRIME_AFFINE;
+			set_cpus_allowed_ptr(current, cpu_prime_mask);
+		} else if (unlikely(!strncmp(filename->name,
+					   QTIHW_BIN_PREFIX,
+					   strlen(QTIHW_BIN_PREFIX)))) {
+			current->pc_flags |= PC_PRIME_AFFINE;
 			set_cpus_allowed_ptr(current, cpu_prime_mask);
 		}
 	}
