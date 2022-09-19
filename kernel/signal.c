@@ -43,6 +43,7 @@
 #include <linux/compiler.h>
 #include <linux/posix-timers.h>
 #include <linux/livepatch.h>
+#include <linux/oom.h>
 #include <linux/cgroup.h>
 
 #define CREATE_TRACE_POINTS
