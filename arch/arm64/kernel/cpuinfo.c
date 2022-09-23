@@ -50,12 +50,14 @@ static const char *machine_name;
 DEFINE_PER_CPU(struct cpuinfo_arm64, cpu_data);
 static struct cpuinfo_arm64 boot_cpu_data;
 
+#ifdef CONFIG_DEBUG_KERNEL
 static char *icache_policy_str[] = {
 	[0 ... ICACHE_POLICY_PIPT]	= "RESERVED/UNKNOWN",
 	[ICACHE_POLICY_VIPT]		= "VIPT",
 	[ICACHE_POLICY_PIPT]		= "PIPT",
 	[ICACHE_POLICY_VPIPT]		= "VPIPT",
 };
+#endif
 
 unsigned long __icache_flags;
 
