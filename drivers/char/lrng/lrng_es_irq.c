@@ -494,7 +494,7 @@ static void lrng_irq_array_compress(void)
 		if (hash_cb->hash_update(shash,
 					(u8 *)this_cpu_ptr(lrng_irq_array),
 					LRNG_DATA_ARRAY_SIZE * sizeof(u32)))
-			pr_warn_ratelimited("Hashing of entropy data failed\n");
+			pr_debug("Hashing of entropy data failed\n");
 	}
 
 	spin_unlock_irqrestore(lock, flags2);
