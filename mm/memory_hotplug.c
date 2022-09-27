@@ -1444,8 +1444,7 @@ do_migrate_range(unsigned long start_pfn, unsigned long end_pfn)
 				isolate_lru_page(page);
 			if (page_mapped(page))
 				try_to_unmap(page,
-					TTU_IGNORE_MLOCK | TTU_IGNORE_ACCESS,
-					NULL);
+					TTU_IGNORE_MLOCK | TTU_IGNORE_ACCESS);
 			continue;
 		}
 
