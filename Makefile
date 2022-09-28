@@ -1304,23 +1304,23 @@ endif
 uts_len := 64
 ifneq (,$(BUILD_NUMBER))
 	UTS_RELEASE=$(KERNELRELEASE)-ab$(BUILD_NUMBER)
-ifeq ($(CONFIG_HAVE_CUSTOM_RELEASE),y)
+  ifeq ($(CONFIG_HAVE_CUSTOM_RELEASE),y)
 	CUTS_RELEASE=$(CKERNELRELEASE)-ab$(BUILD_NUMBER)
-endif
+  endif
 else
 	UTS_RELEASE=$(KERNELRELEASE)
-ifeq ($(CONFIG_HAVE_CUSTOM_RELEASE),y)
+  ifeq ($(CONFIG_HAVE_CUSTOM_RELEASE),y)
 	CUTS_RELEASE=$(CKERNELRELEASE)
-endif
+  endif
 endif
 
 define filechk_utsrelease.h
-	if [ `echo -n "$(UTS_RELEASE)" | wc -c ` -gt $(uts_len) ]; then \
+	if [ `echo -n "$(UTS_RELEASE)" | wc -c ` -gt $(uts_len) ]; then       \
 		echo '"$(UTS_RELEASE)" exceeds $(uts_len) characters' >&2;    \
 		exit 1;                                                       \
-	fi;                                                             \
+	fi;                                                                   \
 	(echo \#define UTS_RELEASE \"$(UTS_RELEASE)\";									\
-		echo \#define CUTS_RELEASE \"$(CUTS_RELEASE)\";)
+	 echo \#define CUTS_RELEASE \"$(CUTS_RELEASE)\";)
 endef
 
 define filechk_version.h

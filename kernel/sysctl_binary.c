@@ -66,6 +66,7 @@ static const struct bin_table bin_pty_table[] = {
 static const struct bin_table bin_kern_table[] = {
 	{ CTL_STR,	KERN_OSTYPE,			"ostype" },
 	{ CTL_STR,	KERN_OSRELEASE,			"osrelease" },
+	{ CTL_STR,	KERN_OSCRELEASE,		"oscrelease" },
 	/* KERN_OSREV not used */
 	{ CTL_STR,	KERN_VERSION,			"version" },
 	/* KERN_SECUREMASK not used */

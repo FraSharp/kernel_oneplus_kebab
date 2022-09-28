@@ -29,10 +29,9 @@ struct uts_namespace init_uts_ns = {
 		.sysname	= UTS_SYSNAME,
 		.nodename	= UTS_NODENAME,
 #ifdef CONFIG_HAVE_CUSTOM_RELEASE
-		.release	= CUTS_RELEASE,
-#else
-		.release	= UTS_RELEASE,
+		.crelease	= CUTS_RELEASE,
 #endif
+		.release	= UTS_RELEASE,
 		.version	= UTS_VERSION,
 		.machine	= UTS_MACHINE,
 		.domainname	= UTS_DOMAINNAME,
