@@ -10,11 +10,7 @@ static int version_proc_show(struct seq_file *m, void *v)
 {
 	seq_printf(m, linux_proc_banner,
 		utsname()->sysname,
-#ifdef CONFIG_HAVE_CUSTOM_RELEASE
-		utsname()->crelease,
-#else
 		utsname()->release,
-#endif
 		utsname()->version);
 	return 0;
 }

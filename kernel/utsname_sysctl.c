@@ -91,15 +91,6 @@ static struct ctl_table uts_kern_table[] = {
 		.mode		= 0444,
 		.proc_handler	= proc_do_uts_string,
 	},
-#ifdef CONFIG_CUSTOM_HAVE_RELEASE
-	{
-		.procname	= "oscrelease",
-		.data		= init_uts_ns.name.crelease,
-		.maxlen		= sizeof(init_uts_ns.name.crelease),
-		.mode		= 0444,
-		.proc_handler   = proc_do_uts_string,
-	},
-#endif
 	{
 		.procname	= "version",
 		.data		= init_uts_ns.name.version,
