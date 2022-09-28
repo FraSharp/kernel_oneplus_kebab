@@ -3,6 +3,8 @@ ccflags-y := -I$(srctree)/include/drm -I$(srctree)/techpack/display/msm -I$(srct
 ccflags-y += -I$(srctree)/techpack/display/msm/sde
 ccflags-y += -I$(srctree)/techpack/display/rotator
 ccflags-y += -I$(srctree)/techpack/display/oplus
+ccflags-y += -mllvm -inline-threshold=15000
+ccflags-y += -mllvm -inlinehint-threshold=10000
 
 ifeq ($(OPLUS_FEATURE_PXLW_IRIS5),yes)
 ccflags-y += -I$(srctree)/techpack/display/msm/dsi/iris

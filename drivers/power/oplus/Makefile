@@ -6,6 +6,9 @@ ifeq ($(CONFIG_OPLUS_CHG),m)
 gki_support = yes
 endif
 
+ccflags-y += -mllvm -inline-threshold=15000
+ccflags-y += -mllvm -inlinehint-threshold=10000
+
 ifdef gki_support
 
 oplus_chg-y += oplus_debug_info.o
@@ -120,4 +123,3 @@ obj-y   += oplus_configfs.o
 obj-y   += charger_ic/s2asl01_switching.o
 obj-y   += charger_ic/oplus_switching.o
 endif
-

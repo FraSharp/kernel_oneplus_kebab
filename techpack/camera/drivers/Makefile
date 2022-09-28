@@ -1,3 +1,6 @@
+ccflags-y += -mllvm -inline-threshold=15000
+ccflags-y += -mllvm -inlinehint-threshold=10000
+
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_req_mgr/
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_utils/
 obj-$(CONFIG_SPECTRA_CAMERA) += cam_core/
