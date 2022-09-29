@@ -392,9 +392,16 @@ static void request_end(struct fuse_conn *fc, struct fuse_req *req)
 	if (test_and_set_bit(FR_FINISHED, &req->flags))
 		goto put_request;
 
-	spin_lock(&fiq->lock);
-	list_del_init(&req->intr_entry);
-	spin_unlock(&fiq->lock);
+	/*
+	 * test_and_set_bit() implies smp_mb() between bit
+	 * changing and below FR_INTERRUPTED check. Pairs with
+	 * smp_mb() from queue_interrupt().
+	 */
+	if (test_bit(FR_INTERRUPTED, &req->flags)) {
+		spin_lock(&fiq->lock);
+		list_del_init(&req->intr_entry);
+		spin_unlock(&fiq->lock);
+	}
 	WARN_ON(test_bit(FR_PENDING, &req->flags));
 	WARN_ON(test_bit(FR_SENT, &req->flags));
 	if (test_bit(FR_BACKGROUND, &req->flags)) {
