@@ -1631,7 +1631,7 @@ static int update_request_adhoc(uint32_t cl, unsigned int index)
 	else {
 		if (!oops_in_progress)
 			msm_bus_dbg_client_data(client->pdata, index, cl);
-		ret = update_client_paths(client, log_transaction, index);
+		ret = update_client_paths(client, index);
 	}
 	if (ret) {
 		pr_err("%s: Err updating path\n", __func__);
