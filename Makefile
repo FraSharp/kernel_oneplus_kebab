@@ -1207,8 +1207,27 @@ PHONY += $(vmlinux-dirs)
 $(vmlinux-dirs): prepare scripts
 	$(Q)$(MAKE) $(build)=$@ need-builtin=1
 
+ifdef CONFIG_CUSTOM_VERSION
+# Custom kernel version
+CVERSION = 4
+CPATCHLEVEL = 20
+CSUBLEVEL = 1
+CEXTRAVERSION =
+CNAME = Opossums on Parade
+endif
+
+ifeq ($(CONFIG_CUSTOM_VERSION),y)
+CKERNELVERSION = $(CVERSION)$(if $(CPATCHLEVEL),.$(CPATCHLEVEL)$(if $(CSUBLEVEL),.$(CSUBLEVEL)))$(CEXTRAVERSION)
+endif
+
+ifdef CONFIG_CUSTOM_VERSION
+KVERSION = $(CKERNELVERSION)
+else
+KVERSION = $(KERNELVERSION)
+endif
+
 define filechk_kernel.release
-	echo "$(KERNELVERSION)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion \
+	echo "$(KVERSION)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion \
 		$(srctree) $(BRANCH) $(KMI_GENERATION))"
 endef
 
@@ -1293,17 +1312,12 @@ endif
 # needs to be updated, so this check is forced on all builds
 
 uts_len := 64
-ifneq (,$(BUILD_NUMBER))
-	UTS_RELEASE=$(KERNELRELEASE)-ab$(BUILD_NUMBER)
-else
-	UTS_RELEASE=$(KERNELRELEASE)
-endif
 define filechk_utsrelease.h
-	if [ `echo -n "$(UTS_RELEASE)" | wc -c ` -gt $(uts_len) ]; then \
-		echo '"$(UTS_RELEASE)" exceeds $(uts_len) characters' >&2;    \
-		exit 1;                                                       \
-	fi;                                                             \
-	(echo \#define UTS_RELEASE \"$(UTS_RELEASE)\";)
+	if [ `echo -n "$(KERNELRELEASE)" | wc -c ` -gt $(uts_len) ]; then \
+	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2;    \
+	  exit 1;                                                         \
+	fi;                                                               \
+	echo \#define UTS_RELEASE \"${KERNELRELEASE}\"
 endef
 
 define filechk_version.h
