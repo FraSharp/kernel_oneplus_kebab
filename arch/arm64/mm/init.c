@@ -743,7 +743,7 @@ void __init mem_init(void)
 		 * On a machine this small we won't get anywhere without
 		 * overcommit, so turn it on by default.
 		 */
-		sysctl_overcommit_memory = OVERCOMMIT_ALWAYS;
+		sysctl_overcommit_memory = OVERCOMMIT_NEVER;
 	}
 }
 
