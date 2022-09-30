@@ -1756,7 +1756,11 @@ static ssize_t disksize_store(struct device *dev,
 	struct zram *zram = dev_to_zram(dev);
 	int err;
 
+#if CONFIG_CUSTOM_ZRAMSIZE >= 4096
+	disksize = (u64)CONFIG_CUSTOM_ZRAMSIZE * SZ_1M;
+#else
 	disksize = memparse(buf, NULL);
+#endif
 	if (!disksize)
 		return -EINVAL;
 

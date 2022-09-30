@@ -9,4 +9,14 @@ config CUSTOM_VERSION
 
 	  If unsure, say N.
 
+config CUSTOM_ZRAMSIZE
+	int "Use custom zram disksize"
+	depends on ZRAM
+	default 4096
+	help
+	  This option changes the default ZRAM disksize
+	  to a custom one.
+	  It also defaults to the default size,
+	  which is 4096.
+
 endmenu
