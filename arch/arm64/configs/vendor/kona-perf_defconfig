@@ -630,8 +630,8 @@ CONFIG_CRYPTO_POLY1305_NEON=y
 #
 # Custom configs
 #
-CONFIG_CUSTOM=y
 CONFIG_CUSTOM_VERSION=y
+CONFIG_CUSTOM_ZRAMSIZE=12288
 
 #
 # General architecture-dependent options
