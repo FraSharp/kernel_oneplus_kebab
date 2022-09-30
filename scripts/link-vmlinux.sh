@@ -283,7 +283,7 @@ fi
 # Update version
 info GEN .version
 if [ -r .version ]; then
-	VERSION=$(expr 0$(cat .version) + 1)
+	VERSION=$(expr 0$(cat .version))
 	echo $VERSION > .version
 else
 	rm -f .version
