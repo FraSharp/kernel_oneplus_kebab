@@ -65,12 +65,20 @@ static inline void secure_computing_strict(int this_syscall) { return; }
 
 static inline long prctl_get_seccomp(void)
 {
+#ifdef CONFIG_SECCOMP_DISABLED
 	return -EINVAL;
+#else
+	return 0;
+#endif
 }
 
 static inline long prctl_set_seccomp(unsigned long arg2, char __user *arg3)
 {
+#ifdef CONFIG_SECCOMP_DISABLED
 	return -EINVAL;
+#else
+	return 0;
+#endif
 }
 
 static inline int seccomp_mode(struct seccomp *s)
