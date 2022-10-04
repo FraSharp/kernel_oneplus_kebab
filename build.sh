@@ -1,4 +1,4 @@
-export CLANG_PATH="/opt/homebrew/Cellar/llvm/14.0.6_1/bin/"
+export CLANG_PATH="/opt/homebrew/Cellar/llvm/15.0.1/bin/"
 export CROSS_COMPILE="$HOME/src/proton-clang/bin/aarch64-linux-gnu-"
 export python="python3"
 
