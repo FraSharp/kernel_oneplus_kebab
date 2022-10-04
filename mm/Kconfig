@@ -920,3 +920,7 @@ config OPLUS_MM_HACKS
 	  Tested on devices made by OEMs like Motorola and Samsung.
 
 	  If unsure, say "n".
+
+config VM_READAHEAD_DISABLED
+	bool "Disable readahead"
+	default n
