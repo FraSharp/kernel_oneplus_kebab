@@ -569,6 +569,7 @@ static int read_data_from_share_mem(struct sensor_fb_cxt *sensor_fb_cxt)
 }
 
 
+#ifdef CONFIG_DEBUG_KERNEL
 static struct delivery_type delivery_t[2] = {
 	{
 		.name = "wakeup",
@@ -602,6 +603,7 @@ static struct proc_type proc_t[5] = {
 		.type = CDSP,
 	},
 };
+#endif
 
 int procce_special_event_id(unsigned short event_id, int count,
 	struct sensor_fb_cxt *sensor_fb_cxt)
