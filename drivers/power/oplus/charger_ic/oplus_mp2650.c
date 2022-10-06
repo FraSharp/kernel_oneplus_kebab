@@ -2758,11 +2758,7 @@ static struct i2c_driver mp2650_i2c_driver;
 
 static int mp2650_driver_remove(struct i2c_client *client)
 {
-
-    int ret=0;
-
     //ret = i2c_del_driver(&mp2650_i2c_driver);
-    chg_debug( "  ret = %d\n", ret);
     return 0;
 }
 
