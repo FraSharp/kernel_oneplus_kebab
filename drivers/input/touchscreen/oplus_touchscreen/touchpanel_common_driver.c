@@ -282,7 +282,6 @@ void operate_mode_switch(struct touchpanel_data *ts)
 static void tp_touch_down(struct touchpanel_data *ts, struct point_info points, int touch_report_num, int id)
 {
     static int last_width_major;
-    static int point_num = 0;
 
     if (ts->input_dev == NULL)
         return;
@@ -339,9 +338,6 @@ static void tp_touch_down(struct touchpanel_data *ts, struct point_info points, 
 	if (tp_debug == 1 && ts->monitor_data_v2.rate_min) {
 		tp_rate_calc(ts, TP_RATE_CALC);
 	}
-
-    TPD_SPECIFIC_PRINT(point_num, "Touchpanel id %d :Down[%4d %4d %4d %4d %4d %4d %4d]\n", id, points.x, points.y, points.z,
-		points.rx_press, points.tx_press, points.rx_er ,points.tx_er);
 
 #ifndef TYPE_B_PROTOCOL
     input_mt_sync(ts->input_dev);
