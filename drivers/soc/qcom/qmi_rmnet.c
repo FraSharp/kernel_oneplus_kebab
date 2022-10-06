@@ -1117,7 +1117,6 @@ static struct rmnet_powersave_work *rmnet_work;
 static bool rmnet_work_quit;
 static bool rmnet_work_inited;
 static LIST_HEAD(ps_list);
-static u8 ps_bearer_id[32];
 
 struct rmnet_powersave_work {
 	struct delayed_work work;
