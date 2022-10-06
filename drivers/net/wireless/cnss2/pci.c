@@ -2248,10 +2248,12 @@ out:
 
 static void cnss_qca6290_crash_shutdown(struct cnss_pci_data *pci_priv)
 {
+#ifdef CONFIG_DEBUG_KERNEL
 	struct cnss_plat_data *plat_priv = pci_priv->plat_priv;
 
 	cnss_pr_dbg("Crash shutdown with driver_state 0x%lx\n",
 		    plat_priv->driver_state);
+#endif
 
 	cnss_pci_collect_dump_info(pci_priv, true);
 }
