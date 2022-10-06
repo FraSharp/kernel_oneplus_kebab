@@ -1929,11 +1929,13 @@ static int aw8692x_creat_node(struct aw_haptic *aw_haptic)
 static void aw8692x_dump_rtp_regs(struct aw_haptic *aw_haptic)
 {
 	uint8_t reg_array[4] = {0};
+#ifdef CONFIG_DEBUG_KERNEL
 	uint8_t reg_name[][10] = {
 		{"SYSINT"},
 		{"SYSINTM"},
 		{"SYSST2"},
 	};
+#endif
 	int i = 0;
 
 	i2c_r_bytes(aw_haptic, AW8692X_REG_SYSINT, reg_array, AW_I2C_BYTE_THREE);
