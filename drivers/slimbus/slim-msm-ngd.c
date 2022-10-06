@@ -1830,7 +1830,9 @@ static int ngd_slim_probe(struct platform_device *pdev)
 	bool			rxreg_access = false;
 	bool			slim_mdm = false;
 	const char		*ext_modem_id = NULL;
+#ifdef CONFIG_IPC_LOGGING
 	char			ipc_err_log_name[30];
+#endif
 
 	if (of_device_is_compatible(pdev->dev.of_node,
 				    "qcom,iommu-slim-ctrl-cb"))
