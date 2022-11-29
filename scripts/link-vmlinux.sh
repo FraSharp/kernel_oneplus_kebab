@@ -282,13 +282,8 @@ fi
 
 # Update version
 info GEN .version
-if [ -r .version ]; then
-	VERSION=$(expr 0$(cat .version))
-	echo $VERSION > .version
-else
-	rm -f .version
-	echo 1 > .version
-fi;
+rm -f .version
+echo 1 > .version
 
 # final build of init/
 ${MAKE} -f "${srctree}/scripts/Makefile.build" obj=init
