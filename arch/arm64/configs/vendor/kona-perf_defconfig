@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 4.19.255 Kernel Configuration
+# Linux/arm64 4.19.267 Kernel Configuration
 #
 
 #
@@ -752,11 +752,10 @@ CONFIG_BLK_MQ_PCI=y
 #
 # IO Schedulers
 #
-CONFIG_MQ_IOSCHED_DEADLINE=y
+# CONFIG_MQ_IOSCHED_DEADLINE is not set
 # CONFIG_MQ_IOSCHED_KYBER is not set
 CONFIG_IOSCHED_BFQ=y
 CONFIG_BFQ_GROUP_IOSCHED=y
-# CONFIG_MQ_DEADLINE_DEFAULT is not set
 CONFIG_BFQ_DEFAULT=y
 CONFIG_ASN1=y
 CONFIG_UNINLINE_SPIN_UNLOCK=y
