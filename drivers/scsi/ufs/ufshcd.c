@@ -647,6 +647,14 @@ static inline void ufshcd_remove_non_printable(char *val)
 		*val = ' ';
 }
 
+static void ufshcd_add_cmd_upiu_trace(struct ufs_hba *hba, unsigned int tag,
+		const char *str)
+{
+	struct utp_upiu_req *rq = hba->lrb[tag].ucd_req_ptr;
+
+	trace_ufshcd_upiu(dev_name(hba->dev), str, &rq->header, &rq->sc.cdb);
+}
+
 static void ufshcd_add_query_upiu_trace(struct ufs_hba *hba, unsigned int tag,
 		const char *str)
 {
@@ -6492,38 +6500,6 @@ static void ufshcd_slave_destroy(struct scsi_device *sdev)
 }
 
 /**
- * ufshcd_task_req_compl - handle task management request completion
- * @hba: per adapter instance
- * @index: index of the completed request
- * @resp: task management service response
- *
- * Returns non-zero value on error, zero on success
- */
-static int ufshcd_task_req_compl(struct ufs_hba *hba, u32 index, u8 *resp)
-{
-	struct utp_task_req_desc *treq = hba->utmrdl_base_addr + index;
-	unsigned long flags;
-	int ocs_value;
-
-	ufs_spin_lock_irqsave(hba->host->host_lock, flags);
-
-	/* Clear completed tasks from outstanding_tasks */
-	__clear_bit(index, &hba->outstanding_tasks);
-
-	ocs_value = ufshcd_get_tmr_ocs(treq);
-
-	if (ocs_value != OCS_SUCCESS)
-		dev_err(hba->dev, "%s: failed, ocs = 0x%x\n",
-				__func__, ocs_value);
-	}
-	else if (resp)
-		*resp = be32_to_cpu(treq->output_param1) & MASK_TM_SERVICE_RESP;
-	ufs_spin_unlock_irqrestore(hba->host->host_lock, flags);
-
-	return ocs_value;
-}
-
-/**
  * ufshcd_scsi_cmd_status - Update SCSI command result based on SCSI status
  * @lrbp: pointer to local reference block of completed command
  * @scsi_status: SCSI command status
@@ -8100,19 +8076,9 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
 	 * the maximum wait time is bounded by %TM_CMD_TIMEOUT.
 	 */
 	wait_event(hba->tm_tag_wq, ufshcd_get_tm_free_slot(hba, &free_slot));
-	hba->ufs_stats.clk_hold.ctx = TM_CMD_SEND;
 	ufshcd_hold_all(hba);
 
 	ufs_spin_lock_irqsave(host->host_lock, flags);
-	task_req_descp = hba->utmrdl_base_addr;
-	task_req_descp += free_slot;
-	treq = hba->utmrdl_base_addr + free_slot;
-
-	/* Configure task request descriptor */
-	treq->header.dword_0 = cpu_to_le32(UTP_REQ_DESC_INT_CMD);
-	treq->header.dword_2 = cpu_to_le32(OCS_INVALID_COMMAND_STATUS);
-
-	/* Configure task request UPIU */
 	task_tag = hba->nutrs + free_slot;
 
 	treq->req_header.dword_0 |= cpu_to_be32(task_tag);
