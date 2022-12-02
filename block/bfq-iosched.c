@@ -173,13 +173,25 @@ BFQ_BFQQ_FNS(softrt_update);
 static const u64 bfq_fifo_expire[2] = { NSEC_PER_SEC / 4, NSEC_PER_SEC / 8 };
 
 /* Maximum backwards seek (magic number lifted from CFQ), in KiB. */
+#ifdef CONFIG_BFQ_BACK_MAX
+static const int bfq_back_max = CONFIG_BFQ_BACK_MAX * 1024;
+#else
 static const int bfq_back_max = 16 * 1024;
+#endif
 
 /* Penalty of a backwards seek, in number of sectors. */
+#ifdef CONFIG_BFQ_BACK_PENALTY
+static const int bfq_back_penalty = CONFIG_BFQ_BACK_PENALTY;
+#else
 static const int bfq_back_penalty = 2;
+#endif
 
 /* Idling period duration, in ns. */
+#ifdef CONFIG_BFQ_SLICE_IDLE
+static u64 bfq_slice_idle = CONFIG_BFQ_SLICE_IDLE;
+#else
 static u64 bfq_slice_idle = NSEC_PER_SEC / 125;
+#endif
 
 /* Minimum number of assigned budgets for which stats are safe to compute. */
 static const int bfq_stats_min_budgets = 194;

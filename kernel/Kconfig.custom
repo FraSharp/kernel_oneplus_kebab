@@ -19,4 +19,16 @@ config CUSTOM_ZRAMSIZE
 	  It also defaults to the default size,
 	  which is 4096.
 
+config BFQ_SLICE_IDLE
+	int "Use custom BFQ slice_idle"
+	depends on IOSCHED_BFQ
+
+config BFQ_BACK_MAX
+	int "Use custom BFQ back_seek_max (KB)"
+	depends on IOSCHED_BFQ
+
+config BFQ_BACK_PENALTY
+	int "Use custom BFQ back_seek_max_penalty"
+	depends on IOSCHED_BFQ
+
 endmenu
