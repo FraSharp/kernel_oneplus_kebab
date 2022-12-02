@@ -8,6 +8,7 @@ PREEMPT=$4
 CC=$5
 LD=$6
 LTO=$7
+BFQ=$8
 
 vecho() { [ "${quiet}" = "silent_" ] || echo "$@" ; }
 
@@ -53,9 +54,10 @@ fi
 
 UTS_VERSION="#$VERSION"
 CONFIG_FLAGS=""
-if [ -n "$SMP" ] ; then CONFIG_FLAGS="SMP"; fi
+if [ -n "$SMP" ]     ; then CONFIG_FLAGS="SMP"; fi
 if [ -n "$PREEMPT" ] ; then CONFIG_FLAGS="$CONFIG_FLAGS PREEMPT"; fi
-if [ -n "$LTO" ] ; then CONFIG_FLAGS="$CONFIG_FLAGS LTO"; fi
+if [ -n "$LTO" ]     ; then CONFIG_FLAGS="$CONFIG_FLAGS LTO"; fi
+if [ -n "$BFQ" ]     ; then CONFIG_FLAGS="$CONFIG_FLAGS BFQ"; fi
 UTS_VERSION="$UTS_VERSION $CONFIG_FLAGS $TIMESTAMP"
 
 # Truncate to maximum length
